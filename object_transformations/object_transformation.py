@@ -24,7 +24,7 @@ class ObjectTransformation(ABC):
 
     def __init__(self):
         self.is_process_called = False
-        self.check_no_overflow = False
+        self.check_no_overflow = True
         self.before_area, self.after_area = None, None
 
     @abstractmethod

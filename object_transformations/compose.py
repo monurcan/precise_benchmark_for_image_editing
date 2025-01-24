@@ -4,10 +4,14 @@ from typing import Tuple
 import numpy as np
 
 from object_transformations.flip import Flip
-from object_transformations.move import MoveByPixel
+from object_transformations.move import MoveByPixel, MoveTo, MoveByPercentage
 from object_transformations.object_transformation import ObjectTransformation
 from object_transformations.rotate import Rotate
-from object_transformations.scale import ScaleBy
+from object_transformations.scale import (
+    ScaleBy,
+    ScaleAbsolutelyToPixels,
+    ScaleAbsolutelyToPercentage,
+)
 
 
 class Compose(ObjectTransformation):
@@ -16,7 +20,16 @@ class Compose(ObjectTransformation):
         self.transform_matrix = None
         if transformations is None:
             # create random sequence of transformations
-            transformations = [MoveByPixel(), Rotate(), ScaleBy(), Flip()]
+            transformations = [
+                Flip(),
+                ScaleBy(),
+                ScaleAbsolutelyToPercentage(),
+                ScaleAbsolutelyToPixels(),
+                MoveByPixel(),
+                MoveByPercentage(),
+                MoveTo(),
+            ]  # Rotate(), Sheer(),
+
             random.shuffle(transformations)
             subset_size = random.randint(2, len(transformations))
             self.transformations = transformations[:subset_size]
@@ -121,7 +134,7 @@ class Compose(ObjectTransformation):
 
 # Example usage
 if __name__ == "__main__":
-    import object_transformations.utils.create_random_simple_shape_mask as mask_generator
+    import utils.create_random_simple_shape_mask as mask_generator
     from object_transformations.move import MoveByPercentage, MoveTo
     from object_transformations.scale import (
         ScaleAbsolutelyToPixels,

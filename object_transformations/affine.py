@@ -83,7 +83,7 @@ class AffineTransform(ObjectTransformation):
 # Test
 if __name__ == "__main__":
     # Random basic shape test
-    import object_transformations.utils.create_random_simple_shape_mask as mask_generator
+    import utils.create_random_simple_shape_mask as mask_generator
 
     mask = mask_generator.create_shape_mask("crescent", (600, 900))
 

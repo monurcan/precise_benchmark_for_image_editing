@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 from object_transformations.object_transformation import ObjectTransformation
-from object_transformations.utils.random_variables import (
+from utils.random_variables import (
     generate_bimodal_sample,
     random_sign,
 )
@@ -248,7 +248,7 @@ class MoveTo(MoveByPixel):
 
 # Test
 if __name__ == "__main__":
-    import object_transformations.utils.create_random_simple_shape_mask as mask_generator
+    import utils.create_random_simple_shape_mask as mask_generator
 
     # while True:
     mask = mask_generator.create_shape_mask("random", (512, 512))

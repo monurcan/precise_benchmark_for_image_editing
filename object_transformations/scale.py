@@ -5,7 +5,7 @@ import numpy as np
 from numpy._core.multiarray import array as array
 
 from object_transformations.object_transformation import ObjectTransformation
-from object_transformations.utils.random_variables import generate_bimodal_sample
+from utils.random_variables import generate_bimodal_sample
 
 
 class ScaleBy(ObjectTransformation):
@@ -222,7 +222,7 @@ if __name__ == "__main__":
     # _, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
 
     # Random basic shape test
-    import object_transformations.utils.create_random_simple_shape_mask as mask_generator
+    import utils.create_random_simple_shape_mask as mask_generator
 
     mask = mask_generator.create_shape_mask("random", (512, 512))
 

@@ -7,30 +7,26 @@ from tqdm import tqdm
 
 from object_transformations.compose import Compose
 from object_transformations.flip import Flip
-from object_transformations.move import Move
-from object_transformations.rotate import Rotate
-from object_transformations.scale import Scale
+from object_transformations.move import MoveByPixel, MoveByPercentage, MoveTo
+from object_transformations.scale import (
+    ScaleBy,
+    ScaleAbsolutelyToPercentage,
+    ScaleAbsolutelyToPixels,
+)
+
+# from object_transformations.rotate import Rotate
 
 
-def load_masks_from_folder(folder_path):
-    """Load all binary mask images from the folder."""
-    folder = Path(folder_path)
-    mask_files = list(folder.glob("*.png"))  # Assuming binary masks are in PNG format
-    masks = [
-        cv2.imread(str(mask_file), cv2.IMREAD_GRAYSCALE) for mask_file in mask_files
-    ]
-    return masks, mask_files
-
-
-if __name__ == "__main__":
+def parse_args():
     parser = argparse.ArgumentParser(
-        description="Apply transformations to binary masks."
+        description="Apply geometric transformations to the binary masks."
     )
+
     parser.add_argument(
         "--input_folder",
         type=str,
         required=True,
-        help="Folder containing binary mask images",
+        help="Folder containing the dataset in FSS1000 format",
     )
     parser.add_argument(
         "--transform_count",
@@ -47,37 +43,56 @@ if __name__ == "__main__":
     parser.add_argument(
         "--save_path", type=str, help="Path to save the transformed images"
     )
-    args = parser.parse_args()
+
+    return parser.parse_args()
+
+
+def load_images_from_folder(folder_path):
+    """Load all images from the folder."""
+    folder = Path(folder_path)
+    mask_paths = list(folder.rglob("*.png"))
+    images_paths = [mask_path.with_suffix(".jpg") for mask_path in mask_paths]
+
+    return zip(mask_paths, images_paths)
+
+
+if __name__ == "__main__":
+    args = parse_args()
 
     # Create the save path if it does not exist
     if args.save_path:
         Path(args.save_path).mkdir(parents=True, exist_ok=True)
 
-    # Load binary masks from the input folder
-    masks, mask_files = load_masks_from_folder(args.input_folder)
-
-    for i in tqdm(range(len(masks))):
-        # Select a mask from the loaded masks
-        mask = masks[i]
-        mask_filename = mask_files[i].name
+    for mask_path, image_path in load_images_from_folder(args.input_folder):
+        input_mask = cv2.imread(str(mask_path), cv2.IMREAD_GRAYSCALE)
+        input_image = cv2.imread(str(image_path))
 
         if args.save_path:
-            save_folder = Path(args.save_path) / f"sample_{i}"
+            save_folder = mask_path.parent.name + "_" + mask_path.stem
             save_folder.mkdir(parents=True, exist_ok=True)
-            cv2.imwrite(str(save_folder / f"base.png"), mask)
+            cv2.imwrite(str(save_folder / f"base.png"), input_mask)
+            cv2.imwrite(str(save_folder / f"base_image.png"), input_image)
 
         for j in range(args.transform_count):
-            # Random transformation among 4 different types
-            transformations = [Flip(), Rotate(), Scale(), Move()]
-
-            # Apply a composition of transformations with a certain probability
             if np.random.rand() < args.composition_probability:
+                # Composition of transformations with a certain probability
                 transformation = Compose()
             else:
-                transformation = np.random.choice(transformations)
+                # Random transformation among 4 different types
+                transformation = np.random.choice(
+                    [
+                        Flip(),
+                        ScaleBy(),
+                        ScaleAbsolutelyToPercentage(),
+                        ScaleAbsolutelyToPixels(),
+                        MoveByPixel(),
+                        MoveByPercentage(),
+                        MoveTo(),
+                    ]  # Rotate(), Sheer(),
+                )
 
             # Apply the transformation to the mask
-            processed_mask = transformation.process(mask)
+            processed_mask = transformation.process(input_mask)
             base_prompt, manually_generated_prompt = transformation.get_prompt()
             transformation_matrix = transformation.get_matrix()
 
@@ -96,12 +111,15 @@ if __name__ == "__main__":
                 with open(save_folder / f"transformation_matrix_{j}.txt", "w") as f:
                     f.write(str(transformation_matrix))
             else:
-                print(f"********** Image {i}, Transform {j} **********")
+                print(
+                    f"********** Image {mask_path.parent.name}_{mask_path.stem}, Transform {j} **********"
+                )
                 print(f"Base Prompt: {base_prompt}")
                 print(
                     f"Manually Generated Human-Like Prompt: {manually_generated_prompt}"
                 )
                 print(f"Matrix: {transformation_matrix}")
-                cv2.imshow(f"Original Mask", mask)
-                cv2.imshow(f"Transformed Mask", processed_mask)
+                cv2.imshow("Original Mask", input_mask)
+                cv2.imshow("Transformed Mask", processed_mask)
+                cv2.imshow("Original Image", input_image)
                 cv2.waitKey(0)

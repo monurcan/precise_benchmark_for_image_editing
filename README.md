@@ -2,6 +2,7 @@
 
 A benchmark for precise geometric object-level editing
 
+Necessary things: input image, edit prompt, input mask, output mask
 
 
 ### To create a binary mask dataset from PASCAL dataset in our format
