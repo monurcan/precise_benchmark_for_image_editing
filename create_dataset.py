@@ -83,9 +83,6 @@ if __name__ == "__main__":
             cv2.imwrite(str(save_folder / f"base_image.png"), input_image)
 
         for obj in voc_object.objects:
-            print(voc_object.filename)
-            print("************************")
-
             input_instance_mask = obj.mask
             # Check if the object is truncated
             if args.check_truncated and obj.truncated:
@@ -100,8 +97,6 @@ if __name__ == "__main__":
                 or percentage_area > args.max_percentage_area
             ):
                 continue
-
-            continue
 
             # To guarantee uniqueness of the transformations
             is_flip_applied = False
