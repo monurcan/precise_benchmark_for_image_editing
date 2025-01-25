@@ -109,11 +109,11 @@ if __name__ == "__main__":
                     # Random transformation among 4 different types
                     possible_transformations = [
                         ScaleBy(),
-                        # ScaleAbsolutelyToPercentage(),
-                        # ScaleAbsolutelyToPixels(),
+                        ScaleAbsolutelyToPercentage(),
+                        ScaleAbsolutelyToPixels(),
                         MoveByPixel(),
-                        # MoveByPercentage(),
-                        # MoveTo(),
+                        MoveByPercentage(),
+                        MoveTo(),
                     ]  # Rotate(), Sheer(),
                     if not is_flip_applied:
                         possible_transformations.append(Flip())
@@ -124,10 +124,14 @@ if __name__ == "__main__":
 
                     # TODO: add support for ScaleAbsolutelyToPercentage, ScaleAbsolutelyToPixels, MoveByPercentage, MoveTo!!
 
-                # Apply the transformation to the mask
-                processed_mask = transformation.process(input_instance_mask)
-                base_prompt, manually_generated_prompt = transformation.get_prompt()
-                transformation_matrix = transformation.get_matrix()
+                try:
+                    # Apply the transformation to the mask
+                    processed_mask = transformation.process(input_instance_mask)
+                    base_prompt, manually_generated_prompt = transformation.get_prompt()
+                    transformation_matrix = transformation.get_matrix()
+                except Exception as e:
+                    print(e)
+                    continue
 
                 if args.save_path:
                     cv2.imwrite(
@@ -152,6 +156,7 @@ if __name__ == "__main__":
                         f"Manually Generated Human-Like Prompt: {manually_generated_prompt}"
                     )
                     print(f"Matrix: {transformation_matrix}")
+                    print(transformation)
                     cv2.imshow("Original Mask", input_instance_mask)
                     cv2.imshow("Transformed Mask", processed_mask)
                     cv2.imshow("Original Image", input_image)

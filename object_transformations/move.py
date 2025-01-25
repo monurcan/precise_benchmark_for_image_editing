@@ -183,24 +183,43 @@ class MoveByPixel(ObjectTransformation):
 
 
 class MoveByPercentage(MoveByPixel):
-    def __init__(self, displacement_percentage: tuple):
-        self.dx_percentage, self.dy_percentage = displacement_percentage
+    def __init__(self, displacement_percentage: tuple = None):
+        if displacement_percentage is None:
+            self.dx_percentage = random.randint(-30, 30)
+            self.dy_percentage = random.randint(-30, 30)
+        else:
+            self.dx_percentage, self.dy_percentage = displacement_percentage
 
-    def process(self, mask: np.array) -> np.array:
+    def _process_object(self, mask: np.array) -> np.array:
         x_start, y_start = int(mask.shape[1] * self.dx_percentage / 100), int(
             mask.shape[0] * self.dy_percentage / 100
         )
 
         super().__init__((x_start, y_start))
 
-        return super().process(mask)
+        return super()._process_object(mask)
 
 
 class MoveTo(MoveByPixel):
-    def __init__(self, position: str):
-        self.position = position
+    def __init__(self, position: str = None):
+        if position is None:
+            self.position = random.choice(
+                [
+                    "left-up",
+                    "left-center",
+                    "left-bottom",
+                    "center-up",
+                    "center-center",
+                    "center-bottom",
+                    "right-up",
+                    "right-center",
+                    "right-bottom",
+                ]
+            )
+        else:
+            self.position = position
 
-    def process(self, mask: np.array) -> np.array:
+    def _process_object(self, mask: np.array) -> np.array:
         mask_height, mask_width = mask.shape
 
         # Find object boundaries
@@ -243,7 +262,7 @@ class MoveTo(MoveByPixel):
 
         super().__init__((dx, dy))
 
-        return super().process(mask)
+        return super()._process_object(mask)
 
 
 # Test

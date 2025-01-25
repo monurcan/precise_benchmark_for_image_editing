@@ -164,10 +164,13 @@ class ScaleBy(ObjectTransformation):
 
 
 class ScaleAbsolutelyToPercentage(ScaleBy):
-    def __init__(self, scale_percentage: float):
+    def __init__(self, scale_percentage: float = None):
+        if scale_percentage is None:
+            scale_percentage = random.randint(30, 330)
+
         self.scale_percentage = scale_percentage / 100
 
-    def process(self, mask: np.array) -> np.array:
+    def _process_object(self, mask: np.array) -> np.array:
         # Scale the mask by the given percentage of the input mask shape
         mask_height, mask_width = mask.shape
 
@@ -185,15 +188,19 @@ class ScaleAbsolutelyToPercentage(ScaleBy):
         # Apply scaling
         super().__init__(relative_scale_factor)
 
-        return super().process(mask)
+        return super()._process_object(mask)
 
 
 class ScaleAbsolutelyToPixels(ScaleBy):
-    def __init__(self, tuple_new_width_height: tuple) -> None:
-        self.new_width = tuple_new_width_height[0]
-        self.new_height = tuple_new_width_height[1]
+    def __init__(self, tuple_new_width_height: tuple = None) -> None:
+        if tuple_new_width_height is None and tuple_new_width_height is None:
+            self.new_width = random.randint(50, 150)
+            self.new_height = None
+        else:
+            self.new_width = tuple_new_width_height[0]
+            self.new_height = tuple_new_width_height[1]
 
-    def process(self, mask: np.array) -> np.array:
+    def _process_object(self, mask: np.array) -> np.array:
         # Find object boundaries
         y_min, x_min = np.min(np.where(mask != 0), axis=1)
         y_max, x_max = np.max(np.where(mask != 0), axis=1)
@@ -212,7 +219,7 @@ class ScaleAbsolutelyToPixels(ScaleBy):
         # Apply scaling
         super().__init__(relative_scale_factor)
 
-        return super().process(mask)
+        return super()._process_object(mask)
 
 
 # Test
