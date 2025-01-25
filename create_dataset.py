@@ -32,7 +32,7 @@ def parse_args():
     parser.add_argument(
         "--transform_count",
         type=int,
-        default=3,
+        default=1,
         help="Number of random transformations per an object in the image",
     )
     parser.add_argument(
@@ -84,9 +84,22 @@ if __name__ == "__main__":
 
         for obj in voc_object.objects:
             input_instance_mask = obj.mask
-            # TODO: check truncated and area threshold!!!
-            if obj.truncated:
+            # Check if the object is truncated
+            if args.check_truncated and obj.truncated:
                 continue
+
+            # Check if area percentage is within specified limits
+            area = np.sum(input_instance_mask / 255)
+            total_area = input_instance_mask.size
+            percentage_area = (area / total_area) * 100
+            if (
+                percentage_area < args.min_percentage_area
+                or percentage_area > args.max_percentage_area
+            ):
+                continue
+
+            # To guarantee uniqueness of the transformations
+            is_flip_applied = False
 
             for j in range(args.transform_count):
                 if np.random.rand() < args.composition_probability:
@@ -94,24 +107,27 @@ if __name__ == "__main__":
                     transformation = Compose()
                 else:
                     # Random transformation among 4 different types
-                    transformation = np.random.choice(
-                        [
-                            Flip(),
-                            ScaleBy(),
-                            # ScaleAbsolutelyToPercentage(),
-                            # ScaleAbsolutelyToPixels(),
-                            MoveByPixel(),
-                            # MoveByPercentage(),
-                            # MoveTo(),
-                        ]  # Rotate(), Sheer(),
-                    )
+                    possible_transformations = [
+                        ScaleBy(),
+                        # ScaleAbsolutelyToPercentage(),
+                        # ScaleAbsolutelyToPixels(),
+                        MoveByPixel(),
+                        # MoveByPercentage(),
+                        # MoveTo(),
+                    ]  # Rotate(), Sheer(),
+                    if not is_flip_applied:
+                        possible_transformations.append(Flip())
+
+                    transformation = np.random.choice(possible_transformations)
+
+                    is_flip_applied = isinstance(transformation, Flip)
+
+                    # TODO: add support for ScaleAbsolutelyToPercentage, ScaleAbsolutelyToPixels, MoveByPercentage, MoveTo!!
 
                 # Apply the transformation to the mask
                 processed_mask = transformation.process(input_instance_mask)
                 base_prompt, manually_generated_prompt = transformation.get_prompt()
                 transformation_matrix = transformation.get_matrix()
-
-                # TODO: add support for ScaleAbsolutelyToPercentage, ScaleAbsolutelyToPixels, MoveByPercentage, MoveTo!!
 
                 if args.save_path:
                     cv2.imwrite(
