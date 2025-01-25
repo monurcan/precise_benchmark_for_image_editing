@@ -65,6 +65,115 @@ def parse_args():
     return parser.parse_args()
 
 
+def is_obj_valid(
+    obj, check_truncated: bool, min_percentage_area: float, max_percentage_area: float
+):
+    # Check if the object is truncated
+    if check_truncated and obj.truncated:
+        return False
+
+    # Check if area percentage is within specified limits
+    area = np.sum(obj.mask / 255)
+    total_area = obj.mask.size
+    percentage_area = (area / total_area) * 100
+    if percentage_area < min_percentage_area or percentage_area > max_percentage_area:
+        return False
+
+    return True
+
+
+def get_transformed_masks(obj, transform_count: int, composition_probability: float):
+    result = []
+
+    # To guarantee uniqueness of the transformations
+    is_flip_applied = False
+
+    for j in range(transform_count):
+        if np.random.rand() < composition_probability:
+            # Composition of transformations with a certain probability
+            transformation = Compose()
+        else:
+            # Random transformation among 4 different types
+            possible_transformations = [
+                ScaleBy(),
+                ScaleAbsolutelyToPercentage(),
+                ScaleAbsolutelyToPixels(),
+                MoveByPixel(),
+                MoveByPercentage(),
+                MoveTo(),
+            ]  # Rotate(), Sheer(),
+            if not is_flip_applied:
+                possible_transformations.append(Flip())
+
+            transformation = np.random.choice(possible_transformations)
+
+            is_flip_applied = isinstance(transformation, Flip)
+
+            # TODO: add support for ScaleAbsolutelyToPercentage, ScaleAbsolutelyToPixels, MoveByPercentage, MoveTo!!
+
+            # Apply the transformation to the mask
+            processed_mask = transformation.process(obj.mask)
+            base_prompt, manually_generated_prompt = transformation.get_prompt()
+            transformation_matrix = transformation.get_matrix()
+
+            result.append(
+                {
+                    "obj_name": obj.name,
+                    "transform_j": j,
+                    "input_mask": obj.mask,
+                    "processed_mask": processed_mask,
+                    "base_prompt": base_prompt,
+                    "manually_generated_prompt": manually_generated_prompt,
+                    "transformation_matrix": transformation_matrix,
+                }
+            )
+
+    return result
+
+
+def save_to_disk(
+    filename: str,
+    save_path,
+    input_image,
+    input_mask,
+    obj_name,
+    transform_j,
+    processed_mask,
+    base_prompt,
+    manually_generated_prompt,
+    transformation_matrix,
+):
+    if save_path:
+        save_folder = Path(save_path) / Path(filename)
+        save_folder.mkdir(parents=True, exist_ok=True)
+        cv2.imwrite(str(save_folder / f"base_image.png"), input_image)
+        cv2.imwrite(str(save_folder / f"base.png"), input_mask)
+        cv2.imwrite(
+            str(save_folder / f"transformed_{transform_j}.png"),
+            processed_mask,
+        )
+
+        with open(save_folder / f"prompt_{transform_j}.txt", "w") as f:
+            f.write(base_prompt)
+
+        with open(save_folder / f"prompt_human_like_{transform_j}.txt", "w") as f:
+            f.write(manually_generated_prompt)
+
+        with open(save_folder / f"transformation_matrix_{transform_j}.txt", "w") as f:
+            f.write(str(transformation_matrix))
+    else:
+        print(
+            f"********** Image {filename}, Object {obj_name}, Transform {transform_j} **********"
+        )
+        print(f"Base Prompt: {base_prompt}")
+        print(f"Manually Generated Human-Like Prompt: {manually_generated_prompt}")
+        print(f"Matrix: {transformation_matrix}")
+        cv2.imshow("Original Mask", input_mask)
+        cv2.imshow("Transformed Mask", processed_mask)
+        cv2.imshow("Original Image", input_image)
+        cv2.waitKey(0)
+
+
 if __name__ == "__main__":
     args = parse_args()
 
@@ -76,91 +185,22 @@ if __name__ == "__main__":
         args.input_folder, remove_multiple_same_instance_images=True
     ):
         for obj_i, obj in enumerate(voc_object.objects):
-            input_image = voc_object.image
-            input_instance_mask = obj.mask
-
-            # Check if the object is truncated
-            if args.check_truncated and obj.truncated:
-                continue
-
-            # Check if area percentage is within specified limits
-            area = np.sum(input_instance_mask / 255)
-            total_area = input_instance_mask.size
-            percentage_area = (area / total_area) * 100
-            if (
-                percentage_area < args.min_percentage_area
-                or percentage_area > args.max_percentage_area
+            if not is_obj_valid(
+                obj,
+                args.check_truncated,
+                args.min_percentage_area,
+                args.max_percentage_area,
             ):
                 continue
 
-            if args.save_path:
-                save_folder = Path(args.save_path) / Path(
-                    voc_object.filename.split(".", 1)[0] + f"_{obj_i}"
+            transformed_masks = get_transformed_masks(
+                obj, args.transform_count, args.composition_probability
+            )
+
+            for j, processed_result in enumerate(transformed_masks):
+                save_to_disk(
+                    save_path=args.save_path,
+                    filename=voc_object.filename.split(".", 1)[0] + f"_{obj_i}",
+                    input_image=voc_object.image,
+                    **processed_result,
                 )
-                save_folder.mkdir(parents=True, exist_ok=True)
-                cv2.imwrite(str(save_folder / f"base_image.png"), input_image)
-                cv2.imwrite(str(save_folder / f"base.png"), input_instance_mask)
-
-            # To guarantee uniqueness of the transformations
-            is_flip_applied = False
-
-            for j in range(args.transform_count):
-                if np.random.rand() < args.composition_probability:
-                    # Composition of transformations with a certain probability
-                    transformation = Compose()
-                else:
-                    # Random transformation among 4 different types
-                    possible_transformations = [
-                        ScaleBy(),
-                        ScaleAbsolutelyToPercentage(),
-                        ScaleAbsolutelyToPixels(),
-                        MoveByPixel(),
-                        MoveByPercentage(),
-                        MoveTo(),
-                    ]  # Rotate(), Sheer(),
-                    if not is_flip_applied:
-                        possible_transformations.append(Flip())
-
-                    transformation = np.random.choice(possible_transformations)
-
-                    is_flip_applied = isinstance(transformation, Flip)
-
-                    # TODO: add support for ScaleAbsolutelyToPercentage, ScaleAbsolutelyToPixels, MoveByPercentage, MoveTo!!
-
-                try:
-                    # Apply the transformation to the mask
-                    processed_mask = transformation.process(input_instance_mask)
-                    base_prompt, manually_generated_prompt = transformation.get_prompt()
-                    transformation_matrix = transformation.get_matrix()
-                except Exception as e:
-                    print(e)
-                    continue
-
-                if args.save_path:
-                    cv2.imwrite(
-                        str(save_folder / f"transformed_{j}.png"),
-                        processed_mask,
-                    )
-
-                    with open(save_folder / f"prompt_{j}.txt", "w") as f:
-                        f.write(base_prompt)
-
-                    with open(save_folder / f"prompt_human_like_{j}.txt", "w") as f:
-                        f.write(manually_generated_prompt)
-
-                    with open(save_folder / f"transformation_matrix_{j}.txt", "w") as f:
-                        f.write(str(transformation_matrix))
-                else:
-                    print(
-                        f"********** Image {voc_object.filename}, Object {obj.name}, Transform {j} **********"
-                    )
-                    print(f"Base Prompt: {base_prompt}")
-                    print(
-                        f"Manually Generated Human-Like Prompt: {manually_generated_prompt}"
-                    )
-                    print(f"Matrix: {transformation_matrix}")
-                    print(transformation)
-                    cv2.imshow("Original Mask", input_instance_mask)
-                    cv2.imshow("Transformed Mask", processed_mask)
-                    cv2.imshow("Original Image", input_image)
-                    cv2.waitKey(0)

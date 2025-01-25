@@ -23,11 +23,11 @@ class Compose(ObjectTransformation):
             transformations = [
                 Flip(),
                 ScaleBy(),
-                # ScaleAbsolutelyToPercentage(),
-                # ScaleAbsolutelyToPixels(),
+                ScaleAbsolutelyToPercentage(),
+                ScaleAbsolutelyToPixels(),
                 MoveByPixel(),
-                # MoveByPercentage(),
-                # MoveTo(),
+                MoveByPercentage(),
+                MoveTo(),
             ]  # Rotate(), Sheer(),
 
             random.shuffle(transformations)
