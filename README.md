@@ -4,6 +4,10 @@ A benchmark for precise geometric object-level editing
 
 Necessary things: input image, edit prompt, input mask, output mask
 
+TODO: replace <object> token by the classname
+TODO: prompts for derived scaleby moveto ...
+TODO: reasoning like
+
 
 ### To create a binary mask dataset from PASCAL dataset in our format
 1. dataset_creation/parse_pascal_dataset.py

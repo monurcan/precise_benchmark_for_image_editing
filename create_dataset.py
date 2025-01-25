@@ -75,15 +75,10 @@ if __name__ == "__main__":
     for voc_object in parse_voc(
         args.input_folder, remove_multiple_same_instance_images=True
     ):
-        input_image = voc_object.image
-
-        if args.save_path:
-            save_folder = Path(voc_object.filename.split(".", 1)[0])
-            save_folder.mkdir(parents=True, exist_ok=True)
-            cv2.imwrite(str(save_folder / f"base_image.png"), input_image)
-
-        for obj in voc_object.objects:
+        for obj_i, obj in enumerate(voc_object.objects):
+            input_image = voc_object.image
             input_instance_mask = obj.mask
+
             # Check if the object is truncated
             if args.check_truncated and obj.truncated:
                 continue
@@ -97,6 +92,14 @@ if __name__ == "__main__":
                 or percentage_area > args.max_percentage_area
             ):
                 continue
+
+            if args.save_path:
+                save_folder = Path(args.save_path) / Path(
+                    voc_object.filename.split(".", 1)[0] + f"_{obj_i}"
+                )
+                save_folder.mkdir(parents=True, exist_ok=True)
+                cv2.imwrite(str(save_folder / f"base_image.png"), input_image)
+                cv2.imwrite(str(save_folder / f"base.png"), input_instance_mask)
 
             # To guarantee uniqueness of the transformations
             is_flip_applied = False
