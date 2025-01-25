@@ -132,7 +132,7 @@ def get_transformed_masks(obj, transform_count: int, composition_probability: fl
 
 
 def save_to_disk(
-    filename: str,
+    filename,
     save_path,
     input_image,
     input_mask,
@@ -197,7 +197,7 @@ if __name__ == "__main__":
                 obj, args.transform_count, args.composition_probability
             )
 
-            for j, processed_result in enumerate(transformed_masks):
+            for processed_result in transformed_masks:
                 save_to_disk(
                     save_path=args.save_path,
                     filename=voc_object.filename.split(".", 1)[0] + f"_{obj_i}",
