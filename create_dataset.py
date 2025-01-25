@@ -7,11 +7,11 @@ from tqdm import tqdm
 
 from object_transformations.compose import Compose
 from object_transformations.flip import Flip
-from object_transformations.move import MoveByPixel, MoveByPercentage, MoveTo
+from object_transformations.move import MoveByPercentage, MoveByPixel, MoveTo
 from object_transformations.scale import (
-    ScaleBy,
     ScaleAbsolutelyToPercentage,
     ScaleAbsolutelyToPixels,
+    ScaleBy,
 )
 
 # from object_transformations.rotate import Rotate
