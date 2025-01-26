@@ -5,14 +5,14 @@ A benchmark for precise geometric object-level editing.
 (input image, edit prompt, input mask, ground-truth output mask)
 
 # TODO
-TODO: add support for reasoning like prompts, make the cat as big as the dog...
-
 TODO: implement evaluate.py, use groundedSAM autodistill. categorical results for each transformation type, # of samples etc. detailed results. also, results for each input image.
+
+TODO: add support for reasoning like prompts, make the cat as big as the dog...
 
 TODO: update requirements.txt, and, add this as a submodule to the main project
 
 # How to Evaluate?
-The benchmark is available at: https://huggingface.co/TODOADDLINK
+The benchmark is available at: https://huggingface.co/datasets/monurcan/precise_benchmark_for_object_level_image_editing
 
 Use HF-hub to download dataset. You should only use *input image*, *edit prompt* and *id* columns to generate edited images. Check: https://huggingface.co/docs/hub/en/datasets-usage
 
