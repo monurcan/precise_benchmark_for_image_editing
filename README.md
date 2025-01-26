@@ -28,13 +28,13 @@ example_synthetic_dataset/
 │   ├── prompt_human_like_0.txt     # Human-like manually generated prompt
 │   ├── prompt_gpt_0.txt            # (Exists if create_gpt_prompts.py is executed) GPT paraphrased versions
 │   ├── transformation_matrix_0.txt # 3x3 affine transformation matrix
-│   ├── transformation_type_0.txt   # Transformation type**
+│   ├── transformation_type_0.txt   # Transformation type, possibilities: Compose, Flip, MoveByPercentage, MoveByPixel, MoveTo, ScaleAbsolutelyToPercentage, ScaleAbsolutelyToPixels, ScaleBy
 │   ├── transformed_1.png           # Modified output binary mask (for the second transform)
 │   ├── prompt_1.txt                # Corresponding base prompt
 │   ├── prompt_human_like_1.txt     # Human-like manually generated prompt
 │   ├── prompt_gpt_1.txt            # (Exists if create_gpt_prompts.py is executed) GPT paraphrased versions
 │   ├── transformation_matrix_1.txt # 3x3 affine transformation matrix
-│   ├── transformation_type_1.txt   # Transformation type**
+│   ├── transformation_type_1.txt   # Transformation type, possibilities: Compose, Flip, MoveByPercentage, MoveByPixel, MoveTo, ScaleAbsolutelyToPercentage, ScaleAbsolutelyToPixels, ScaleBy
 │   └── ...
 ├── sample_1/
 │   └── ...                         # Same structure as sample_0
@@ -45,7 +45,6 @@ example_synthetic_dataset/
 └── ...
 ```
 
-**Possible transformation types: Compose, Flip, MoveByPercentage, MoveByPixel, MoveTo, ScaleAbsolutelyToPercentage, ScaleAbsolutelyToPixels, ScaleBy
 
 ## Base Prompt Format, Examples and Conventions
 
