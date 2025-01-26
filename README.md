@@ -98,11 +98,17 @@ Convention: Execution is from left to right
 <summary><h1>Dataset Generation</h1></summary>
 
 ### To create a binary mask dataset from PASCAL dataset in our format
+```
 python3 create_dataset.py --input_folder "raw_datasets/VOC2012" --save_path "generated_datasets/version_X"
+```
 
 ### To augment the prompts after creating a dataset in our format
+```
 python3 create_gpt_prompts.py --dataset_path "generated_datasets/version_X"
+```
 
 ### To convert the dataset from our format to Hugging Face Dataset format
+```
 python3 create_hf_dataset_from_our_format.py --dataset_folder "generated_datasets/version_X" --output_hf_dataset_location "generated_datasets/version_X_hf"
+```
 </details>
