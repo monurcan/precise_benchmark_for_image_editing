@@ -102,7 +102,21 @@ class Compose(ObjectTransformation):
         for transformation in self.transformations:
             if transformation._check_overflow(mask, processed_mask):
                 return True
-        return False
+        # return False
+        # This simple check is not enough, accumulated errors can lead to overflow
+
+        total_scaling_factor = 1.0
+        for transformation in self.transformations:
+            if isinstance(transformation, ScaleBy):
+                total_scaling_factor *= transformation.scale_factor
+
+        if total_scaling_factor < 0.4 or total_scaling_factor > 3.7:
+            return True
+
+        before_area = np.sum(mask != 0)
+        after_area = np.sum(processed_mask != 0)
+
+        return abs(after_area / before_area / total_scaling_factor**2 - 1) > 0.2
 
     def decompose_transformation_matrix_as_flip_shift_resize_rotation(
         self,

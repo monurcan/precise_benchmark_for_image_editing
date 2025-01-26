@@ -65,6 +65,7 @@ class AffineTransform(ObjectTransformation):
         return transformed_mask
 
     def _check_overflow(self, mask: np.array, processed_mask: np.array) -> bool:
+        # TODO: this is false, fix it for scaling
         before_area = np.sum(mask != 0)
         after_area = np.sum(processed_mask != 0)
 

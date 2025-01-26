@@ -131,53 +131,62 @@ class MoveByPixel(ObjectTransformation):
             f"apply a movement to the object by ({self.dx}, {self.dy})",
         ]
 
-        # More verbal approximate explanations
-        if not self.direction:
-            raise ValueError(
-                "First call _get_base_prompt() before _get_manually_generated_prompt()"
-            )
-
-        power = ""
         magnitude_of_displacement = math.sqrt(self.dx**2 + self.dy**2)
-        if magnitude_of_displacement > 100:
-            power = "too much"
-        elif magnitude_of_displacement > 50:
-            power = "moderately"
-        else:
-            power = "slightly"
-
+        angle_of_displacement = math.degrees(math.atan2(self.dy, self.dx))
         possible_prompts.extend(
             [
-                f"displace the object {power} to {self.direction} direction",
-                f"move the object {power} to the {self.direction} direction",
-                f"translate the object {power} in the {self.direction} direction",
-                f"apply a movement of {power} to the object in the {self.direction} direction",
+                f"displace the object to {angle_of_displacement} degrees direction by {magnitude_of_displacement:.2f} pixels",
+                f"move the object to {angle_of_displacement} degrees direction by {magnitude_of_displacement:.2f} pixels",
+                f"translate the object by a vector ({self.dx}, {self.dy}) in the {angle_of_displacement} degrees direction",
+                f"apply a movement to the object by ({self.dx}, {self.dy}) in the {angle_of_displacement} degrees direction",
             ]
         )
 
+        # More verbal approximate explanations
+        # if not self.direction:
+        #     raise ValueError(
+        #         "First call _get_base_prompt() before _get_manually_generated_prompt()"
+        #     )
+        # power = ""
+        # if magnitude_of_displacement > 100:
+        #     power = "too much"
+        # elif magnitude_of_displacement > 50:
+        #     power = "moderately"
+        # else:
+        #     power = "slightly"
+
+        # possible_prompts.extend(
+        #     [
+        #         f"displace the object {power} to {self.direction} direction",
+        #         f"move the object {power} to the {self.direction} direction",
+        #         f"translate the object {power} in the {self.direction} direction",
+        #         f"apply a movement of {power} to the object in the {self.direction} direction",
+        #     ]
+        # )
+
         # Move to corner
-        if self.new_x_start:
-            epsilon_corner_tolerance = 35.0
-            if (
-                self.new_x_start < epsilon_corner_tolerance
-                and self.new_y_start < epsilon_corner_tolerance
-            ):
-                possible_prompts.append("move the object to the top-left corner")
-            elif (
-                self.new_x_end_distance_to_right < epsilon_corner_tolerance
-                and self.new_y_start < epsilon_corner_tolerance
-            ):
-                possible_prompts.append("move the object to the top-right corner")
-            elif (
-                self.new_x_start < epsilon_corner_tolerance
-                and self.new_y_end_distance_to_bottom < epsilon_corner_tolerance
-            ):
-                possible_prompts.append("move the object to the bottom-left corner")
-            elif (
-                self.new_x_end_distance_to_right < epsilon_corner_tolerance
-                and self.new_y_end_distance_to_bottom < epsilon_corner_tolerance
-            ):
-                possible_prompts.append("move the object to the bottom-right corner")
+        # if self.new_x_start:
+        #     epsilon_corner_tolerance = 35.0
+        #     if (
+        #         self.new_x_start < epsilon_corner_tolerance
+        #         and self.new_y_start < epsilon_corner_tolerance
+        #     ):
+        #         possible_prompts.append("move the object to the top-left corner")
+        #     elif (
+        #         self.new_x_end_distance_to_right < epsilon_corner_tolerance
+        #         and self.new_y_start < epsilon_corner_tolerance
+        #     ):
+        #         possible_prompts.append("move the object to the top-right corner")
+        #     elif (
+        #         self.new_x_start < epsilon_corner_tolerance
+        #         and self.new_y_end_distance_to_bottom < epsilon_corner_tolerance
+        #     ):
+        #         possible_prompts.append("move the object to the bottom-left corner")
+        #     elif (
+        #         self.new_x_end_distance_to_right < epsilon_corner_tolerance
+        #         and self.new_y_end_distance_to_bottom < epsilon_corner_tolerance
+        #     ):
+        #         possible_prompts.append("move the object to the bottom-right corner")
 
         return random.choice(possible_prompts)
 
@@ -198,6 +207,16 @@ class MoveByPercentage(MoveByPixel):
         super().__init__((x_start, y_start))
 
         return super()._process_object(mask)
+
+    def _get_manually_generated_prompt(self) -> str:
+        possible_prompts = [
+            f"displace the object by ({self.dx_percentage}%, {self.dy_percentage}%)",
+            f"move the object by ({self.dx_percentage}%, {self.dy_percentage}%)",
+            f"translate the object by a vector ({self.dx_percentage}%, {self.dy_percentage}%)",
+            f"apply a movement to the object by ({self.dx_percentage}%, {self.dy_percentage}%)",
+        ]
+
+        return random.choice(possible_prompts)
 
 
 class MoveTo(MoveByPixel):
@@ -263,6 +282,15 @@ class MoveTo(MoveByPixel):
         super().__init__((dx, dy))
 
         return super()._process_object(mask)
+
+    def _get_manually_generated_prompt(self) -> str:
+        possible_prompts = [
+            f"displace the object to {self.position} corner",
+            f"move the object to {self.position} corner",
+            f"translate the object to {self.position} corner",
+        ]
+
+        return random.choice(possible_prompts)
 
 
 # Test

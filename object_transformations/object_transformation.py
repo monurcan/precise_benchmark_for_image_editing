@@ -36,7 +36,8 @@ class ObjectTransformation(ABC):
         pass
 
     def process(self, mask: np.array) -> np.array:
-        while True:
+        max_tries = 200
+        for _ in range(max_tries):
             processed_mask = self._process_object(mask)
             self.is_process_called = True
 
@@ -46,6 +47,9 @@ class ObjectTransformation(ABC):
                 return processed_mask
             # Else, initialize with new random parameters and try again
             self.__init__()
+        raise ValueError(
+            f"Failed to find a valid transformation after {max_tries} tries"
+        )
 
     @abstractmethod
     def _get_manually_generated_prompt(self) -> str:

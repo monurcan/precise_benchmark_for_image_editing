@@ -3,15 +3,13 @@ import os
 from openai import OpenAI
 from tqdm import tqdm
 
-with open("/zhome/a8/4/207573/OpenAI-Keys/openai.txt", "r") as key_file:
-    openai_key = key_file.read().strip()
-
-client = OpenAI(api_key=openai_key)
+openai_key = os.getenv("OPENAI_API_KEY")
+if not openai_key:
+    raise ValueError("OPENAI_API_KEY environment variable not set")
 
 
 def augment_with_gpt(prompt, human_like):
-    # pipeline = transformers.pipeline("text-generation", model="meta-llama/Llama-3.2-1B", model_kwargs={"torch_dtype": torch.bfloat16}, device_map="auto", use_auth_token="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")
-
+    client = OpenAI(api_key=openai_key)
     completion = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -63,7 +61,7 @@ def augment_prompt(dataset_path):
                             prompt_content = pf.read().strip()
                             human_like_content = hf.read().strip()
 
-                        # Combine the contents with the "bla bla" prefix
+                        # Combine the contents
                         combined_content = augment_with_gpt(
                             prompt_content, human_like_content
                         )
@@ -86,7 +84,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Augment prompts in the dataset folder by combining with human-like prompts."
     )
-    parser.add_argument("dataset_path", type=str, help="Path to the dataset folder")
+    parser.add_argument("--dataset_path", type=str, help="Path to the dataset folder")
 
     args = parser.parse_args()
     augment_prompt(args.dataset_path)

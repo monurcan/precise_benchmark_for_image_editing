@@ -16,6 +16,7 @@ from object_transformations.scale import (
 
 # from object_transformations.rotate import Rotate
 from utils.pascal_voc_parser import parse_voc
+from utils.set_seeds import set_seeds
 
 
 def parse_args():
@@ -32,13 +33,13 @@ def parse_args():
     parser.add_argument(
         "--transform_count",
         type=int,
-        default=1,
+        default=2,
         help="Number of random transformations per an object in the image",
     )
     parser.add_argument(
         "--composition_probability",
         type=float,
-        default=0.1,
+        default=0.05,
         help="Probability of applying a composition of transformations",
     )
     parser.add_argument(
@@ -57,8 +58,8 @@ def parse_args():
         help="Maximum percentage area of objects to keep.",
     )
     parser.add_argument(
-        "--check_truncated",
-        action="store_false",
+        "--dont_check_truncated",
+        action="store_true",
         help="Don't include the truncated objects",
     )
 
@@ -109,26 +110,41 @@ def get_transformed_masks(obj, transform_count: int, composition_probability: fl
 
             is_flip_applied = isinstance(transformation, Flip)
 
-            # TODO: add support for ScaleAbsolutelyToPercentage, ScaleAbsolutelyToPixels, MoveByPercentage, MoveTo!!
+        # Apply the transformation to the mask
+        processed_mask = transformation.process(obj.mask)
+        base_prompt, manually_generated_prompt = transformation.get_prompt()
+        transformation_matrix = transformation.get_matrix()
 
-            # Apply the transformation to the mask
-            processed_mask = transformation.process(obj.mask)
-            base_prompt, manually_generated_prompt = transformation.get_prompt()
-            transformation_matrix = transformation.get_matrix()
-
-            result.append(
-                {
-                    "obj_name": obj.name,
-                    "transform_j": j,
-                    "input_mask": obj.mask,
-                    "processed_mask": processed_mask,
-                    "base_prompt": base_prompt,
-                    "manually_generated_prompt": manually_generated_prompt,
-                    "transformation_matrix": transformation_matrix,
-                }
-            )
+        result.append(
+            {
+                "obj_name": obj.name,
+                "transform_j": j,
+                "input_mask": obj.mask,
+                "processed_mask": processed_mask,
+                "base_prompt": base_prompt,
+                "manually_generated_prompt": manually_generated_prompt,
+                "transformation_matrix": transformation_matrix,
+                "transformation_type": type(transformation).__name__,
+                "object_class": obj.name,
+            }
+        )
 
     return result
+
+
+def better_object_class(obj_class):
+    if obj_class == "diningtable":
+        return "dining table"
+    if obj_class == "pottedplant":
+        return "potted plant"
+    if obj_class == "tvmonitor":
+        return "tv monitor"
+    return obj_class
+
+
+def better_manual_prompt(prompt, obj_class):
+    prompt = prompt.replace("the object", f"the {better_object_class(obj_class)}")
+    return prompt
 
 
 def save_to_disk(
@@ -142,7 +158,14 @@ def save_to_disk(
     base_prompt,
     manually_generated_prompt,
     transformation_matrix,
+    transformation_type,
+    object_class,
 ):
+    object_class = better_object_class(object_class)
+    manually_generated_prompt = better_manual_prompt(
+        manually_generated_prompt, object_class
+    )
+
     if save_path:
         save_folder = Path(save_path) / Path(filename)
         save_folder.mkdir(parents=True, exist_ok=True)
@@ -161,6 +184,12 @@ def save_to_disk(
 
         with open(save_folder / f"transformation_matrix_{transform_j}.txt", "w") as f:
             f.write(str(transformation_matrix))
+
+        with open(save_folder / f"transformation_type_{transform_j}.txt", "w") as f:
+            f.write(transformation_type)
+
+        with open(save_folder / f"object_class.txt", "w") as f:
+            f.write(object_class)
     else:
         print(
             f"********** Image {filename}, Object {obj_name}, Transform {transform_j} **********"
@@ -168,6 +197,8 @@ def save_to_disk(
         print(f"Base Prompt: {base_prompt}")
         print(f"Manually Generated Human-Like Prompt: {manually_generated_prompt}")
         print(f"Matrix: {transformation_matrix}")
+        print(f"Transformation Type: {transformation_type}")
+        print(f"Object Class: {object_class}")
         cv2.imshow("Original Mask", input_mask)
         cv2.imshow("Transformed Mask", processed_mask)
         cv2.imshow("Original Image", input_image)
@@ -175,6 +206,9 @@ def save_to_disk(
 
 
 if __name__ == "__main__":
+    # Set the seeds for reproducibility
+    set_seeds(19)
+
     args = parse_args()
 
     # Create the save path if it does not exist
@@ -187,15 +221,19 @@ if __name__ == "__main__":
         for obj_i, obj in enumerate(voc_object.objects):
             if not is_obj_valid(
                 obj,
-                args.check_truncated,
+                not args.dont_check_truncated,
                 args.min_percentage_area,
                 args.max_percentage_area,
             ):
                 continue
 
-            transformed_masks = get_transformed_masks(
-                obj, args.transform_count, args.composition_probability
-            )
+            try:
+                transformed_masks = get_transformed_masks(
+                    obj, args.transform_count, args.composition_probability
+                )
+            except Exception as e:
+                print(f"Error processing object {obj.name}: {e}")
+                continue
 
             for processed_result in transformed_masks:
                 save_to_disk(

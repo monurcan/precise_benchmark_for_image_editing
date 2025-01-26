@@ -1,34 +1,18 @@
 # precise_benchmark_for_image_editing
 
-A benchmark for precise geometric object-level editing
+A benchmark for precise geometric object-level editing.
 
-Necessary things: input image, edit prompt, input mask, output mask
-
-TODO: replace <object> token by the classname
-TODO: prompts for derived scaleby moveto ...
-TODO: reasoning like
-TODO: add as a submodule to the main project
-
-### To create a binary mask dataset from PASCAL dataset in our format
-1. dataset_creation/parse_pascal_dataset.py
-2. dataset_creation/create_realistic_dataset.py
-
-### To augment the prompts after creating a dataset in our format
-dataset_creation/create_gpt_prompts.py
-
-### To convert the dataset from our format to Hugging Face Dataset format
-dataset_creation/create_hf_dataset_from_our_format.py
+input image, edit prompt, input mask, ground-truth output mask
 
 
-# Example execution order for dataset creation after parsing the PASCAL dataset once
-python3 dataset_creation/create_realistic_dataset.py --input_folder datasets/example_pascal_dataset/test_images/ --transform_count 20 --composition_probability 0.06 --save_path datasets/example_pascal_dataset/dataset_big
+TODO: add support for reasoning like prompts, make the cat as big as the dog...
 
-python3 dataset_creation/create_synthetic_dataset.py --num_images 200 --transform_count 2 --composition_probability 0.06 --save_path datasets/example_pascal_dataset/dataset_big --start_index 1712
+TODO: convert to a package and easy-to-use script like precise_benchmark.eval --input_folder "" here input folder is edited_images folder or binary_mask folder (--evaluate_reasoning_only)
 
-python3 dataset_creation/create_gpt_prompts.py datasets/example_pascal_dataset/dataset_big/ 
+TODO: add this as a submodule to the main project
 
-python3 dataset_creation/create_hf_dataset_from_our_format.py --dataset_folder datasets/example_pascal_dataset/dataset_big/ --output_hf_dataset_location datasets/pascal_w_shapes_dataset_hf/ 
-
+# How to Evaluate?
+....
 
 
 # Dataset Format
@@ -36,15 +20,21 @@ python3 dataset_creation/create_hf_dataset_from_our_format.py --dataset_folder d
 ```
 example_synthetic_dataset/
 ├── sample_0/
-│   ├── base.png               # Original input binary mask
-│   ├── transformed_0.png                  # Modified output binary mask
+│   ├── base_image.png              # Original input image
+│   ├── object_class.txt            # Object class name
+│   ├── base.png                    # Original input binary mask
+│   ├── transformed_0.png           # Modified output binary mask  (for the first transform)
 │   ├── prompt_0.txt                # Corresponding base prompt
 │   ├── prompt_human_like_0.txt     # Human-like manually generated prompt
+│   ├── prompt_gpt_0.txt            # (Exists if create_gpt_prompts.py is executed) GPT paraphrased versions
 │   ├── transformation_matrix_0.txt # 3x3 affine transformation matrix
-│   ├── transformed_1.png                  # Modified output binary mask
+│   ├── transformation_type_0.txt   # Transformation type**
+│   ├── transformed_1.png           # Modified output binary mask (for the second transform)
 │   ├── prompt_1.txt                # Corresponding base prompt
 │   ├── prompt_human_like_1.txt     # Human-like manually generated prompt
+│   ├── prompt_gpt_1.txt            # (Exists if create_gpt_prompts.py is executed) GPT paraphrased versions
 │   ├── transformation_matrix_1.txt # 3x3 affine transformation matrix
+│   ├── transformation_type_1.txt   # Transformation type**
 │   └── ...
 ├── sample_1/
 │   └── ...                         # Same structure as sample_0
@@ -55,10 +45,11 @@ example_synthetic_dataset/
 └── ...
 ```
 
+**Possible transformation types: Compose, Flip, MoveByPercentage, MoveByPixel, MoveTo, ScaleAbsolutelyToPercentage, ScaleAbsolutelyToPixels, ScaleBy
 
-# Base Prompt Format, Examples and Conventions
+## Base Prompt Format, Examples and Conventions
 
-## Move
+### Move
 ```
 <MOVE> <OBJECT> (65,-147) (12.70,-28.71) down-right
 <MOVE> <OBJECT> (-132,70) (-25.78,13.67) up-left
@@ -69,7 +60,7 @@ First tuple (displacement in x, displacement in y) is pixel values, second tuple
 
 Convention: up and right displacements are positive
 
-## Rotate
+### Rotate
 ```
 <ROTATE> <OBJECT> 76.87
 <ROTATE> <OBJECT> -109.62
@@ -78,19 +69,19 @@ Convention: up and right displacements are positive
 
 Convention: degrees of rotation in the clockwise direction (anticlockwise rotation corresponds to negative degrees)
 
-## Flip
+### Flip
 ```
 <FLIP> <OBJECT>
 ```
 
-## Scale
+### Scale
 ```
 <SCALE> <OBJECT> 0.93
 <SCALE> <OBJECT> 1.07
 <SCALE> <OBJECT> 1.10
 ```
 
-## Composition
+### Composition
 ```
 <ROTATE> <OBJECT> -77.91.<FLIP> <OBJECT>
 <SCALE> <OBJECT> 0.96.<MOVE> <OBJECT> (5,5) (0.98,0.98) up-right
@@ -101,3 +92,17 @@ Convention: degrees of rotation in the clockwise direction (anticlockwise rotati
 Dot seperated combination of the individual base prompts
 
 Convention: Execution is from left to right
+
+
+<details>
+<summary><h1>Dataset Generation</h1></summary>
+
+### To create a binary mask dataset from PASCAL dataset in our format
+python3 create_dataset.py --input_folder "raw_datasets/VOC2012" --save_path "generated_datasets/version_X"
+
+### To augment the prompts after creating a dataset in our format
+python3 create_gpt_prompts.py --dataset_path "generated_datasets/version_X"
+
+### To convert the dataset from our format to Hugging Face Dataset format
+python3 create_hf_dataset_from_our_format.py --dataset_folder "generated_datasets/version_X" --output_hf_dataset_location "generated_datasets/version_X_hf"
+</details>

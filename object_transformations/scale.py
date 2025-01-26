@@ -132,14 +132,7 @@ class ScaleBy(ObjectTransformation):
                 "boost the size of the object to {self.scale_factor:.2f}"
             )
 
-        # Variations based on scale factor
-        if 1 < self.scale_factor < 1.3:
-            possible_prompts.append("make the object slightly larger")
-            possible_prompts.append("make the object a bit bigger")
-        elif 0.7 < self.scale_factor < 1:
-            possible_prompts.append("make the object slightly smaller")
-            possible_prompts.append("make the object a bit smaller")
-        elif self.scale_factor > 2:
+        if self.scale_factor > 2:
             possible_prompts.append(
                 "significantly increase the size of the object to {self.scale_factor:.2f} times its original"
             )
@@ -156,9 +149,16 @@ class ScaleBy(ObjectTransformation):
                 "drastically shrink the object to {self.scale_factor:.2f} of its original size"
             )
 
-        if 1.85 < self.scale_factor < 2.15:
-            possible_prompts.append("double the object's size")
-            possible_prompts.append("make the object twice as big")
+        # More verbal variations based on scale factor
+        # if 1 < self.scale_factor < 1.3:
+        #     possible_prompts.append("make the object slightly larger")
+        #     possible_prompts.append("make the object a bit bigger")
+        # elif 0.7 < self.scale_factor < 1:
+        #     possible_prompts.append("make the object slightly smaller")
+        #     possible_prompts.append("make the object a bit smaller")
+        # elif 1.85 < self.scale_factor < 2.15:
+        #     possible_prompts.append("double the object's size")
+        #     possible_prompts.append("make the object twice as big")
 
         return random.choice(possible_prompts).format(self=self)
 
@@ -166,7 +166,7 @@ class ScaleBy(ObjectTransformation):
 class ScaleAbsolutelyToPercentage(ScaleBy):
     def __init__(self, scale_percentage: float = None):
         if scale_percentage is None:
-            scale_percentage = random.randint(30, 330)
+            scale_percentage = random.randint(9, 260)
 
         self.scale_percentage = scale_percentage / 100
 
@@ -190,12 +190,66 @@ class ScaleAbsolutelyToPercentage(ScaleBy):
 
         return super()._process_object(mask)
 
+    def _get_manually_generated_prompt(self) -> str:
+        possible_prompts = [
+            f"scale the object to the {self.scale_percentage:.2f}% of the image",
+            f"resize the object to the {self.scale_percentage:.2f}% of the image",
+            f"change the size of the object to the {self.scale_percentage:.2f}% of the image",
+            f"change the scale of the object to the {self.scale_percentage:.2f}% of the image size",
+            f"adjust the object's size to {self.scale_percentage:.2f} percent of the image",
+        ]
+
+        # Additional prompts based on scale factor
+        if self.scale_factor < 1:
+            possible_prompts.append(
+                f"shrink the object to the {self.scale_percentage:.2f}% of the image"
+            )
+            possible_prompts.append(
+                f"reduce the object's size to {self.scale_percentage:.2f}% of the image"
+            )
+            possible_prompts.append(
+                f"make the object smaller to {self.scale_percentage:.2f}% of the image size"
+            )
+        else:
+            possible_prompts.append(
+                f"enlarge the object to {self.scale_percentage:.2f}% of the total image size"
+            )
+            possible_prompts.append(
+                f"increase the object's size to {self.scale_percentage:.2f}% of the image"
+            )
+            possible_prompts.append(
+                f"boost the size of the object to {self.scale_percentage:.2f}% of the image size"
+            )
+
+        if self.scale_factor > 2:
+            possible_prompts.append(
+                f"significantly increase the size of the object to {self.scale_percentage:.2f} percent of the image size"
+            )
+        elif 1.3 < self.scale_factor <= 2:
+            possible_prompts.append(
+                f"noticeably enlarge the object to {self.scale_percentage:.2f}% of the image size"
+            )
+        elif 0.5 < self.scale_factor <= 0.7:
+            possible_prompts.append(
+                f"reduce the object's size considerably to {self.scale_percentage:.2f} percent of the image size"
+            )
+        elif self.scale_factor <= 0.5:
+            possible_prompts.append(
+                f"drastically shrink the object to {self.scale_percentage:.2f}% of the total image size"
+            )
+
+        return random.choice(possible_prompts)
+
 
 class ScaleAbsolutelyToPixels(ScaleBy):
     def __init__(self, tuple_new_width_height: tuple = None) -> None:
         if tuple_new_width_height is None and tuple_new_width_height is None:
-            self.new_width = random.randint(50, 150)
-            self.new_height = None
+            if random.random() < 0.5:
+                self.new_width = random.randint(50, 150)
+                self.new_height = None
+            else:
+                self.new_width = None
+                self.new_height = random.randint(50, 150)
         else:
             self.new_width = tuple_new_width_height[0]
             self.new_height = tuple_new_width_height[1]
@@ -220,6 +274,81 @@ class ScaleAbsolutelyToPixels(ScaleBy):
         super().__init__(relative_scale_factor)
 
         return super()._process_object(mask)
+
+    def _get_manually_generated_prompt(self) -> str:
+        possible_prompts = []
+
+        if self.new_width is not None:
+            possible_prompts.append(
+                f"scale the object to a width of {self.new_width} pixels"
+            )
+            possible_prompts.append(
+                f"resize the object to a width of {self.new_width} pixels"
+            )
+            possible_prompts.append(
+                f"change the size of the object to a width of {self.new_width} pixels"
+            )
+            possible_prompts.append(
+                f"adjust the object's size to a width of {self.new_width} pixels"
+            )
+
+            if self.scale_factor < 1:
+                possible_prompts.append(
+                    f"shrink the object to a width of {self.new_width} pixels"
+                )
+                possible_prompts.append(
+                    f"reduce the object's size to a width of {self.new_width} pixels"
+                )
+                possible_prompts.append(
+                    f"make the object smaller to a width of {self.new_width} pixels"
+                )
+            else:
+                possible_prompts.append(
+                    f"enlarge the object to a width of {self.new_width} pixels"
+                )
+                possible_prompts.append(
+                    f"increase the object's size to a width of {self.new_width} pixels"
+                )
+                possible_prompts.append(
+                    f"boost the size of the object to a width of {self.new_width} pixels"
+                )
+
+        if self.new_height is not None:
+            possible_prompts.append(
+                f"scale the object to a height of {self.new_height} pixels"
+            )
+            possible_prompts.append(
+                f"resize the object to a height of {self.new_height} pixels"
+            )
+            possible_prompts.append(
+                f"change the size of the object to a height of {self.new_height} pixels"
+            )
+            possible_prompts.append(
+                f"adjust the object's size to a height of {self.new_height} pixels"
+            )
+
+            if self.scale_factor < 1:
+                possible_prompts.append(
+                    f"shrink the object to a height of {self.new_height} pixels"
+                )
+                possible_prompts.append(
+                    f"reduce the object's size to a height of {self.new_height} pixels"
+                )
+                possible_prompts.append(
+                    f"make the object smaller to a height of {self.new_height} pixels"
+                )
+            else:
+                possible_prompts.append(
+                    f"enlarge the object to a height of {self.new_height} pixels"
+                )
+                possible_prompts.append(
+                    f"increase the object's size to a height of {self.new_height} pixels"
+                )
+                possible_prompts.append(
+                    f"boost the size of the object to a height of {self.new_height} pixels"
+                )
+
+        return random.choice(possible_prompts)
 
 
 # Test
