@@ -2,23 +2,24 @@
 
 A benchmark for precise geometric object-level editing.
 
-input image, edit prompt, input mask, ground-truth output mask
+(input image, edit prompt, input mask, ground-truth output mask)
 
 # TODO
 TODO: add support for reasoning like prompts, make the cat as big as the dog...
 
-TODO: implement evaluate.py, use groundedSAM autodistill
+TODO: implement evaluate.py, use groundedSAM autodistill. categorical results for each transformation type, # of samples etc. detailed results. also, results for each input image.
 
-TODO: update requirements.txt
-
-TODO: add this as a submodule to the main project
+TODO: update requirements.txt, and, add this as a submodule to the main project
 
 # How to Evaluate?
 The benchmark is available at: https://huggingface.co/TODOADDLINK
 
-Use HF-hub and use input image and edit prompt columns. Check: https://huggingface.co/docs/hub/en/datasets-usage
+Use HF-hub to download dataset. You should only use *input image*, *edit prompt* and *id* columns to generate edited images. Check: https://huggingface.co/docs/hub/en/datasets-usage
 
-Save the edited images with the same name as input.
+
+Save the edited images **with the same name as the id column**.
+
+
 Then, use evaluate.py script.
 This will detect the object mask in the edited image, and compare it against the ground-truth output mask.
 ```
@@ -26,7 +27,7 @@ python evaluate.py --input_folder "edited_images_folder"
 ```
 
 
-You do not have to give edited images folder. You can also compare some binary masks against the ground-truth output masks. Use --evaluate_reasoning_only flag for that.
+You do not have to give edited images folder. You can also compare some binary masks against the ground-truth output masks, using --evaluate_reasoning_only flag.
 ```
 python evaluate.py --input_folder "edited_masks_folder" --evaluate_reasoning_only
 ```

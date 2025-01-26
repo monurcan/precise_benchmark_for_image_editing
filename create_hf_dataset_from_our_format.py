@@ -19,19 +19,38 @@ def sample_generator(dataset_folder):
             continue
 
         # Load base image (input_image)
-        base_image_path = os.path.join(sample_path, "base.png")
-        input_image = load_image(base_image_path)
+        input_image = load_image(os.path.join(sample_path, "base_image.png"))
+        input_mask = load_image(os.path.join(sample_path, "base.png"))
 
-        # Iterate over transformations (edit_prompt and edited_image)
+        with open(os.path.join(sample_path, "object_class.txt"), "r") as f:
+            object_class = f.read().strip()
+
+        # Iterate over transformations (edit_prompt and edited_mask)
         for i in range(
             len([f for f in os.listdir(sample_path) if f.startswith("transformed_")])
         ):
-            edited_image_path = os.path.join(sample_path, f"transformed_{i}.png")
+            edited_mask_path = os.path.join(sample_path, f"transformed_{i}.png")
             edit_prompt_path = os.path.join(sample_path, f"prompt_human_like_{i}.txt")
             edit_gpt_prompt_path = os.path.join(sample_path, f"prompt_gpt_{i}.txt")
+            edit_base_prompt_path = os.path.join(sample_path, f"prompt_{i}.txt")
+            transformation_type_path = os.path.join(
+                sample_path, f"transformation_type_{i}.txt"
+            )
+            transformation_matrix_path = os.path.join(
+                sample_path, f"transformation_matrix_{i}.txt"
+            )
+
+            with open(edit_base_prompt_path, "r") as f:
+                edit_base_prompt = f.read().strip()
+
+            with open(transformation_matrix_path, "r") as f:
+                transformation_matrix = f.read().strip()
+
+            with open(transformation_type_path, "r") as f:
+                transformation_type = f.read().strip()
 
             # Load edited image
-            edited_image = load_image(edited_image_path)
+            edited_mask = load_image(edited_mask_path)
 
             # Load prompt
             all_prompts = []
@@ -44,9 +63,15 @@ def sample_generator(dataset_folder):
 
             for example_prompt in all_prompts:
                 yield {
+                    "id": f"{sample_dir}_transform_{i}",
                     "input_image": input_image,
                     "edit_prompt": example_prompt,
-                    "edited_image": edited_image,
+                    "input_mask": input_mask,
+                    "edited_mask": edited_mask,
+                    "object_class": object_class,
+                    "edit_base_prompt": edit_base_prompt,
+                    "transformation_matrix": transformation_matrix,
+                    "transformation_type": transformation_type,
                 }
 
 
@@ -58,7 +83,8 @@ def create_hf_dataset(dataset_folder, output_hf_dataset_location, upload_to_hf=N
 
     # Define the format and save to disk
     hf_dataset = hf_dataset.cast_column("input_image", datasets.Image())
-    hf_dataset = hf_dataset.cast_column("edited_image", datasets.Image())
+    hf_dataset = hf_dataset.cast_column("input_mask", datasets.Image())
+    hf_dataset = hf_dataset.cast_column("edited_mask", datasets.Image())
 
     hf_dataset.save_to_disk(output_hf_dataset_location)
     print(f"HuggingFace dataset created at {output_hf_dataset_location}")
