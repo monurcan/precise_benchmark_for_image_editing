@@ -7,7 +7,7 @@ Necessary things: input image, edit prompt, input mask, output mask
 TODO: replace <object> token by the classname
 TODO: prompts for derived scaleby moveto ...
 TODO: reasoning like
-
+TODO: add as a submodule to the main project
 
 ### To create a binary mask dataset from PASCAL dataset in our format
 1. dataset_creation/parse_pascal_dataset.py
