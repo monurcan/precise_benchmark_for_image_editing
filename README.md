@@ -4,15 +4,27 @@ A benchmark for precise geometric object-level editing.
 
 input image, edit prompt, input mask, ground-truth output mask
 
-
+# TODO
 TODO: add support for reasoning like prompts, make the cat as big as the dog...
 
-TODO: convert to a package and easy-to-use script like precise_benchmark.eval --input_folder "" here input folder is edited_images folder or binary_mask folder (--evaluate_reasoning_only)
+TODO: convert to a package and easy-to-use script like precise_benchmark.eval --input_folder "" here input folder is edited_images folder or binary_mask folder (--evaluate_reasoning_only). Use groundedSAM autodistill
 
 TODO: add this as a submodule to the main project
 
 # How to Evaluate?
-....
+Use HF-hub and use input image and edit prompt columns.
+Save the edited images with the same name as input.
+Then, use evaluate.py script.
+This will detect the object mask in the edited image, and compare it against the ground-truth output mask.
+```
+python evaluate.py --input_folder "edited_images_folder"
+```
+
+
+You do not have to give edited images folder. You can also compare some output masks against the ground-truth output masks. Use --evaluate_reasoning_only flag for that.
+```
+python evaluate.py --input_folder "edited_masks_folder" --evaluate_reasoning_only
+```
 
 
 # Dataset Format
