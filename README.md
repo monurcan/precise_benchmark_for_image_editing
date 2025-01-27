@@ -7,6 +7,8 @@ Sample format: (input image, edit prompt, input mask, ground-truth output mask, 
 The benchmark is available at: https://huggingface.co/datasets/monurcan/precise_benchmark_for_object_level_image_editing
 
 # How to Evaluate?
+
+Before evaluation, you should first create your predictions folder.
 Use *datasets* library to download dataset. You should only use *input image*, *edit prompt* and *id* columns to generate edited images. Check: https://huggingface.co/docs/hub/en/datasets-usage
 
 Save the edited images **with the same name as the id column**.
@@ -29,18 +31,23 @@ for sample in dataset:
     output_image.save(f"output_folder/{sample['id']}.png")
 ```
 
+**You do not have to download this GitHub repo for evaluation. This is just source code.** You can use it as a pip package.
 
-Then, use evaluate.py script on your output folder. **It requires Python >=3.10 and CUDA.**
+```
+pip install git+https://github.com/monurcan/precise_benchmark_for_image_editing.git
+```
+
+Then, use **preciseevaluate** script on your output folder. **It requires Python >=3.10 and CUDA.**
 
 This will detect the object mask in the edited image, and compare it against the ground-truth output mask.
 ```
-python evaluate.py --input_folder "edited_images_folder"
+preciseevaluate --input_folder "edited_images_folder"
 ```
 
 
-There are also other evaluation modes available. 
+There are also other evaluation modes available. Refer to the help.
 ```
-python evaluate.py --help
+preciseevaluate --help
 ```
 
 
