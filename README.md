@@ -14,7 +14,6 @@ Save the edited images **with the same name as the id column**.
 Thus, ideally your code should be like:
 ```
 from datasets import load_dataset
-from PIL import Image
 
 dataset = load_dataset(
     "monurcan/precise_benchmark_for_object_level_image_editing",
