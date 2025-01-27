@@ -204,7 +204,7 @@ def save_results(results, save_path):
     print("=====================================")
 
 
-if __name__ == "__main__":
+def main():
     args = parse_args()
 
     # Load the dataset
@@ -269,3 +269,7 @@ if __name__ == "__main__":
             print(f"Error processing sample {gt_sample['id']}: {e}")
 
     save_results(results, args.save_path)
+
+
+if __name__ == "__main__":
+    main()

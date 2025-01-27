@@ -1,0 +1,13 @@
+[project]
+name = "precisebenchmark" 
+version = "0.1"
+dynamic = ["dependencies"]
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+preciseevaluate = "precisebenchmark.evaluate:main"
