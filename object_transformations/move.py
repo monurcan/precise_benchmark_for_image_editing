@@ -125,10 +125,10 @@ class MoveByPixel(ObjectTransformation):
 
     def _get_manually_generated_prompt(self) -> str:
         possible_prompts = [
-            f"displace the object by ({self.dx}, {self.dy})",
-            f"move the object by ({self.dx}, {self.dy})",
-            f"translate the object by a vector ({self.dx}, {self.dy})",
-            f"apply a movement to the object by ({self.dx}, {self.dy})",
+            f"displace the object by a vector of ({self.dx}, {self.dy}) pixels",
+            f"move the object by a vector of ({self.dx}, {self.dy}) pixels",
+            f"translate the object by a vector ({self.dx}, {self.dy}) pixels",
+            f"apply a movement to the object by a vector of ({self.dx}, {self.dy}) pixels",
         ]
 
         magnitude_of_displacement = math.sqrt(self.dx**2 + self.dy**2)
@@ -137,8 +137,6 @@ class MoveByPixel(ObjectTransformation):
             [
                 f"displace the object using the vector of {angle_of_displacement:.2f} degrees direction and {magnitude_of_displacement:.2f} pixels magnitude",
                 f"move the object using the vector of {angle_of_displacement:.2f} degrees direction and {magnitude_of_displacement:.2f} pixels magnitude",
-                f"translate the object by a vector ({self.dx}, {self.dy})",
-                f"apply a movement to the object by ({self.dx}, {self.dy})",
             ]
         )
 

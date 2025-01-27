@@ -4,25 +4,34 @@ A benchmark for precise geometric object-level editing.
 
 (input image, edit prompt, input mask, ground-truth output mask)
 
-# TODO
-TODO: implement evaluate.py, use groundedSAM autodistill. categorical results for each transformation type, # of samples etc. detailed results. also, results for each input image.
-
-TODO: add support for reasoning like prompts, make the cat as big as the dog...
-
-TODO: add a README to the hf hub dataset
-
-TODO: update requirements.txt, and, add this as a submodule to the main project
-
 # How to Evaluate?
 The benchmark is available at: https://huggingface.co/datasets/monurcan/precise_benchmark_for_object_level_image_editing
 
 Use HF-hub to download dataset. You should only use *input image*, *edit prompt* and *id* columns to generate edited images. Check: https://huggingface.co/docs/hub/en/datasets-usage
 
-
 Save the edited images **with the same name as the id column**.
 
+Thus, ideally your code should be like:
+```
+from datasets import load_dataset
+from PIL import Image
 
-Then, use evaluate.py script.
+dataset = load_dataset(
+    "monurcan/precise_benchmark_for_object_level_image_editing",
+    split="train",
+    streaming=True,
+)
+
+for sample in dataset:
+    output_image = your_image_editing_method(
+        sample["input_image"],
+        sample["edit_prompt"],
+    )
+    output_image.save(f"output_folder/{sample['id']}.png")
+```
+
+
+Then, use evaluate.py script on your output folder.
 This will detect the object mask in the edited image, and compare it against the ground-truth output mask.
 ```
 python evaluate.py --input_folder "edited_images_folder"
@@ -33,6 +42,15 @@ You do not have to give edited images folder. You can also compare some binary m
 ```
 python evaluate.py --input_folder "edited_masks_folder" --evaluate_reasoning_only
 ```
+
+# TODO
+TODO: implement evaluate.py, use groundedSAM autodistill. categorical results for each transformation type, # of samples etc. detailed results. also, results for each input image.
+
+TODO: add support for reasoning like prompts, make the cat as big as the dog...
+
+TODO: add a README to the hf hub dataset
+
+TODO: update requirements.txt, and, add this as a submodule to the main project
 
 
 # Dataset Format
@@ -123,11 +141,11 @@ python3 create_dataset.py --input_folder "raw_datasets/VOC2012" --save_path "gen
 
 ### To augment the prompts after creating a dataset in our format
 ```
-python3 create_gpt_prompts.py --dataset_path "generated_datasets/version_X"
+OPENAI_API_KEY="sk-..." python3 create_gpt_prompts.py --dataset_path "generated_datasets/version_X"
 ```
 
 ### To convert the dataset from our format to Hugging Face Dataset format
 ```
-python3 create_hf_dataset_from_our_format.py --dataset_folder "generated_datasets/version_X" --output_hf_dataset_location "generated_datasets/version_X_hf"
+python3 create_hf_dataset_from_our_format.py --dataset_folder "generated_datasets/version_X" --output_hf_dataset_location "generated_datasets/version_X_hf" --upload_to_dataset "username/dataset_name"
 ```
 </details>

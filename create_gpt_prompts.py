@@ -15,7 +15,7 @@ def augment_with_gpt(prompt, human_like):
         messages=[
             {
                 "role": "system",
-                "content": "instructions: paraphrase the input, to have the same meaning, but make it as natural for humans to write. Provide 2 possible outputs, avoid enumerating.",
+                "content": "Instructions: Paraphrase the input, to have the same meaning, but make it as natural for humans to write. Don't change the meaning. Provide 2 possible outputs, avoid enumerating.",
             },
             {"role": "user", "content": human_like},
         ],
@@ -60,8 +60,6 @@ def augment_prompt(dataset_path):
             if not (os.path.exists(prompt_file) and os.path.exists(human_like_file)):
                 print(f"Skipping: {prompt_file} or {human_like_file} not found.")
                 continue
-
-            print("?===============================================")
 
             with open(prompt_file, "r") as pf, open(human_like_file, "r") as hf:
                 prompt_content = pf.read().strip()
