@@ -44,7 +44,6 @@ python evaluate.py --input_folder "edited_masks_folder" --evaluate_reasoning_onl
 ```
 
 # TODO
-TODO: complete evaluate.py, use groundedSAM autodistill.
 
 TODO: add support for reasoning like prompts, make the cat as big as the dog...
 
