@@ -157,6 +157,7 @@ def find_categorical_results(results):
     categorical_results = {
         "object_class": defaultdict(lambda: defaultdict(list)),
         "transformation_type": defaultdict(lambda: defaultdict(list)),
+        "summary": defaultdict(lambda: defaultdict(list)),
     }
 
     for _, sample_result in results.items():
@@ -171,6 +172,7 @@ def find_categorical_results(results):
             categorical_results["transformation_type"][transformation_type][
                 metric
             ].append(value)
+            categorical_results["summary"]["overall"][metric].append(value)
 
     # Average
     for category, category_results in categorical_results.items():
@@ -216,8 +218,8 @@ def main():
     dataset = dataset.to_iterable_dataset()
 
     # TODO: remove!
-    # dataset_len = 10
-    # dataset = dataset.take(dataset_len)
+    dataset_len = 10
+    dataset = dataset.take(dataset_len)
     ###
 
     if args.evaluation_mode == "gt_edited_masks_vs_my_edited_images":
