@@ -2,3 +2,13 @@ numpy
 opencv-python
 tqdm
 argparse
+git+https://github.com/monurcank/autodistill-grounded-sam-2.git
+datasets
+scikit-learn
+autodistill
+supervision
+roboflow
+autodistill_florence_2
+rf_groundingdino
+samv2
+pytest

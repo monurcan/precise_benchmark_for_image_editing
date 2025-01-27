@@ -30,7 +30,8 @@ for sample in dataset:
 ```
 
 
-Then, use evaluate.py script on your output folder.
+Then, use evaluate.py script on your output folder. **It requires Python >=3.10 and CUDA.**
+
 This will detect the object mask in the edited image, and compare it against the ground-truth output mask.
 ```
 python evaluate.py --input_folder "edited_images_folder"
@@ -43,9 +44,11 @@ python evaluate.py --input_folder "edited_masks_folder" --evaluate_reasoning_onl
 ```
 
 # TODO
-TODO: implement evaluate.py, use groundedSAM autodistill. categorical results for each transformation type, # of samples etc. detailed results. also, results for each input image.
+TODO: complete evaluate.py, use groundedSAM autodistill.
 
 TODO: add support for reasoning like prompts, make the cat as big as the dog...
+
+TODO: package the evaluation script, requires python >3.10
 
 TODO: add a README to the hf hub dataset
 
