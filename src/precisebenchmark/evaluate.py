@@ -240,8 +240,8 @@ def main():
     dataset = dataset.to_iterable_dataset()
 
     # TODO: remove!
-    dataset_len = 10
-    dataset = dataset.take(dataset_len)
+    # dataset_len = 10
+    # dataset = dataset.take(dataset_len)
     ###
 
     if args.evaluation_mode == "gt_edited_masks_vs_my_edited_images":
