@@ -2,11 +2,11 @@
 
 A benchmark for precise geometric object-level editing.
 
-(input image, edit prompt, input mask, ground-truth output mask)
+Sample format: (input image, edit prompt, input mask, ground-truth output mask, ...)
 
-# How to Evaluate?
 The benchmark is available at: https://huggingface.co/datasets/monurcan/precise_benchmark_for_object_level_image_editing
 
+# How to Evaluate?
 Use HF-hub to download dataset. You should only use *input image*, *edit prompt* and *id* columns to generate edited images. Check: https://huggingface.co/docs/hub/en/datasets-usage
 
 Save the edited images **with the same name as the id column**.
