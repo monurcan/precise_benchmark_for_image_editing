@@ -6,8 +6,6 @@ from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
-from autodistill.detection import CaptionOntology
-from autodistill_grounded_sam_2 import GroundedSAM2
 from datasets import load_dataset
 from PIL import Image
 from tqdm import tqdm
@@ -21,23 +19,36 @@ def parse_args():
         "--input_folder",
         type=str,
         required=True,
-        help="Path to the edited images or edited masks folder",
-    )
-    parser.add_argument(
-        "--evaluate_reasoning_only",
-        action="store_true",
-        help="Only evaluate reasoning steps. Input folder should be a folder of edited masks, not images.",
+        help="Path to your image folder containing one of the following: your edited images, your object mask predictions in the transformed image, your object mask predictions in the input image, or your bounding box predictions in the input image",
     )
     parser.add_argument(
         "--save_path",
         type=str,
-        help="Path of the .json file to save the evaluation results",
+        help="Path of the .json file to save the evaluation results. Default: evaluation_results/evaluation_results_timeinfo.json",
     )
     parser.add_argument(
         "--hf_dataset_path",
         type=str,
         help="Path to the Hugging Face dataset for evaluation",
         default="monurcan/precise_benchmark_for_object_level_image_editing",
+    )
+    parser.add_argument(
+        "--evaluation_mode",
+        type=str,
+        choices=[
+            "gt_bounding_boxes_vs_my_bounding_boxes",
+            "gt_input_masks_vs_my_input_masks",
+            "gt_edited_masks_vs_my_edited_masks",
+            "gt_edited_masks_vs_my_edited_images",
+        ],
+        help="""
+            There are 4 different evaluation modes.
+            - gt_bounding_boxes_vs_my_bounding_boxes: compares ground-truth object bounding box in the input images with the bounding box images in your input folder. (VLM in our paper.)
+            - gt_input_masks_vs_my_input_masks: compares ground-truth object mask in the input image with the binary mask images in your input folder. (SAM in our paper.)
+            - gt_edited_masks_vs_my_edited_masks: compares ground-truth object mask in the transformed image with the binary mask images in your input folder. (LLM in our paper.)
+            - gt_edited_masks_vs_my_edited_images: compares ground-truth object mask in the transformed image with the binary mask extracted by GroundedSAM from the edited images in your input folder. This is the default mode. (Drawer in our paper.)
+        """,
+        default="gt_edited_masks_vs_my_edited_images",
     )
 
     args = parser.parse_args()
@@ -52,7 +63,7 @@ def parse_args():
     return args
 
 
-def edited_samples(input_folder, sample_id):
+def my_predictions(input_folder, sample_id):
     input_folder = Path(input_folder)
     corresponding_sample = next(input_folder.glob(f"{sample_id}.*"), None)
 
@@ -65,6 +76,7 @@ def edited_samples(input_folder, sample_id):
 
 
 def extract_mask(image: Image.Image, obj_class: str, base_model) -> Image.Image:
+    from autodistill.detection import CaptionOntology
 
     base_model.ontology = CaptionOntology(
         {
@@ -82,9 +94,35 @@ def extract_mask(image: Image.Image, obj_class: str, base_model) -> Image.Image:
     return Image.fromarray(results_mask)
 
 
-def compare_two_masks(gt_obj: dict, other_mask: Image.Image):
-    gt_mask = gt_obj["edited_mask"]
+def convert_mask_to_bbox(mask: Image.Image):
+    # Convert the mask to a numpy array of type uint8
+    mask_np = np.array(mask, dtype=np.uint8)
 
+    # Check if the mask is empty (all pixels are zero)
+    if np.all(mask_np == 0):
+        return mask.copy()  # Return original mask if empty
+
+    # Find rows and columns with non-zero pixels
+    rows = np.any(mask_np, axis=1)
+    cols = np.any(mask_np, axis=0)
+
+    # Extract bounding box coordinates
+    r_indices = np.where(rows)[0]
+    c_indices = np.where(cols)[0]
+
+    # Handle edge case where there's only a single row/column of non-zero pixels
+    rmin, rmax = r_indices[[0, -1]]
+    cmin, cmax = c_indices[[0, -1]]
+
+    # Expand the region to cover the entire bounding box (inclusive)
+    # Note: numpy slicing is exclusive on the upper bound, hence +1
+    mask_np[rmin : rmax + 1, cmin : cmax + 1] = 255
+
+    # Convert the modified numpy array back to a PIL Image
+    return Image.fromarray(mask_np)
+
+
+def compare_two_masks(gt_mask: Image.Image, other_mask: Image.Image):
     # Convert PIL images to NumPy arrays
     gt_mask = np.array(gt_mask, dtype=np.float32)
     other_mask = np.array(other_mask, dtype=np.float32)
@@ -112,8 +150,6 @@ def compare_two_masks(gt_obj: dict, other_mask: Image.Image):
     return {
         "iou": float(iou),
         "mae": float(mae),
-        "object_class": gt_obj["object_class"],
-        "transformation_type": gt_obj["transformation_type"],
     }
 
 
@@ -180,37 +216,56 @@ if __name__ == "__main__":
     dataset = dataset.to_iterable_dataset()
 
     # TODO: remove!
-    # dataset_len = 10
-    # dataset = dataset.take(dataset_len)
+    dataset_len = 10
+    dataset = dataset.take(dataset_len)
     ###
 
-    # Initialize the GroundedSAM model
-    base_model = GroundedSAM2(
-        ontology=CaptionOntology(
-            {
-                "object": "object",
-            }
-        ),
-        model="Grounding DINO",
-    )
+    if args.evaluation_mode == "gt_edited_masks_vs_my_edited_images":
+        from autodistill.detection import CaptionOntology
+        from autodistill_grounded_sam_2 import GroundedSAM2
+
+        # Initialize the GroundedSAM model
+        base_model = GroundedSAM2(
+            ontology=CaptionOntology(
+                {
+                    "object": "object",
+                }
+            ),
+            model="Grounding DINO",
+        )
 
     results = {"individual_results": {}}
 
-    for sample in tqdm(dataset, total=dataset_len):
+    for gt_sample in tqdm(dataset, total=dataset_len):
         try:
-            corresponding_sample = edited_samples(args.input_folder, sample["id"])
+            corresponding_sample = my_predictions(args.input_folder, gt_sample["id"])
 
-            if not args.evaluate_reasoning_only:
-                edited_masks = extract_mask(
-                    corresponding_sample, sample["object_class"], base_model
+            if args.evaluation_mode == "gt_edited_masks_vs_my_edited_images":
+                my_prediction = extract_mask(
+                    corresponding_sample, gt_sample["object_class"], base_model
                 )
             else:
-                edited_masks = corresponding_sample
+                my_prediction = corresponding_sample
 
-            results["individual_results"][sample["id"]] = compare_two_masks(
-                sample, edited_masks
-            )
+            if args.evaluation_mode in [
+                "gt_edited_masks_vs_my_edited_images",
+                "gt_edited_masks_vs_my_edited_masks",
+            ]:
+                target_mask = gt_sample["edited_mask"]
+            elif args.evaluation_mode == "gt_input_masks_vs_my_input_masks":
+                target_mask = gt_sample["input_mask"]
+            elif args.evaluation_mode == "gt_bounding_boxes_vs_my_bounding_boxes":
+                target_mask = convert_mask_to_bbox(gt_sample["input_mask"])
+            else:
+                raise ValueError("Invalid evaluation mode")
+
+            results["individual_results"][gt_sample["id"]] = {
+                **compare_two_masks(target_mask, my_prediction),
+                "object_class": gt_sample["object_class"],
+                "transformation_type": gt_sample["transformation_type"],
+            }
+
         except Exception as e:
-            print(f"Error processing sample {sample['id']}: {e}")
+            print(f"Error processing sample {gt_sample['id']}: {e}")
 
     save_results(results, args.save_path)
