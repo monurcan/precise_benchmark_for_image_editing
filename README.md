@@ -52,8 +52,8 @@ TODO: add a README to the hf hub dataset
 
 TODO: update requirements.txt, and, add this as a submodule to the main project
 
-
-# Dataset Details and Conventions
+<details>
+<summary><h1>Dataset Details and Conventions</h1></summary>
 
 ```
 example_synthetic_dataset/
@@ -129,7 +129,7 @@ Convention: degrees of rotation in the clockwise direction (anticlockwise rotati
 Dot seperated combination of the individual base prompts
 
 Convention: Execution is from left to right
-
+</details>
 
 <details>
 <summary><h1>Dataset Generation</h1></summary>
