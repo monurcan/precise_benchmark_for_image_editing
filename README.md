@@ -53,7 +53,7 @@ TODO: add a README to the hf hub dataset
 TODO: update requirements.txt, and, add this as a submodule to the main project
 
 
-# Dataset Format
+# Dataset Details and Conventions
 
 ```
 example_synthetic_dataset/
