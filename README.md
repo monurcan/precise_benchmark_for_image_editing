@@ -38,10 +38,11 @@ python evaluate.py --input_folder "edited_images_folder"
 ```
 
 
-You do not have to give edited images folder. You can also compare some binary masks against the ground-truth output masks, using --evaluate_reasoning_only flag.
+There are also other evaluation modes available. 
 ```
-python evaluate.py --input_folder "edited_masks_folder" --evaluate_reasoning_only
+python evaluate.py --help
 ```
+
 
 # TODO
 
