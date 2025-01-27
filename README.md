@@ -28,10 +28,10 @@ for sample in dataset:
         sample["input_image"],
         sample["edit_prompt"],
     )
-    output_image.save(f"output_folder/{sample['id']}.png")
+    output_image.save(f"your_edited_images_folder/{sample['id']}.png")
 ```
 
-You should install our pip package. **It requires Python >=3.10 and CUDA. You do not have to download this GitHub repo. This is just source code.** 
+You should install our evaluation pip package. **It requires Python >=3.10 and CUDA. You do not have to download this GitHub repo. This is just source code.** 
 
 ```
 pip install git+https://github.com/monurcan/precise_benchmark_for_image_editing.git
