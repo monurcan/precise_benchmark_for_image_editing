@@ -9,7 +9,7 @@ The benchmark is available at: https://huggingface.co/datasets/monurcan/precise_
 # How to Evaluate?
 
 Before evaluation, you should first create your predictions folder.
-Use *datasets* library to download dataset. You should only use *input image*, *edit prompt* and *id* columns to generate edited images. Check: https://huggingface.co/docs/hub/en/datasets-usage
+Use *datasets* library to download dataset. You should only use *input image*, *edit prompt* and *id* columns to generate edited images.
 
 Save the edited images **with the same name as the id column**.
 
@@ -37,11 +37,11 @@ for sample in dataset:
 pip install git+https://github.com/monurcan/precise_benchmark_for_image_editing.git
 ```
 
-Then, use **preciseevaluate** script on your output folder. **It requires Python >=3.10 and CUDA.**
+Then, use **preciseevaluate** script on your predictions folder. **It requires Python >=3.10 and CUDA.**
 
 This will detect the object mask in the edited image, and compare it against the ground-truth output mask.
 ```
-preciseevaluate --input_folder "edited_images_folder"
+preciseevaluate --input_folder "your_edited_images_folder"
 ```
 
 
@@ -55,11 +55,7 @@ preciseevaluate --help
 
 TODO: add support for reasoning like prompts, make the cat as big as the dog...
 
-TODO: package the evaluation script, requires python >3.10
-
-TODO: add a README to the hf hub dataset
-
-TODO: update requirements.txt, and, add this as a submodule to the main project
+TODO: add this as a submodule to the main project
 
 <details>
 <summary><h1>Dataset Details and Conventions</h1></summary>
