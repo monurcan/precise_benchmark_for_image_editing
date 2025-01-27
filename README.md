@@ -8,7 +8,7 @@ The benchmark is available at: https://huggingface.co/datasets/monurcan/precise_
 
 # How to Evaluate?
 
-Before evaluation, you should first create your predictions folder.
+Before evaluation, you should first generate your edited images.
 Use *datasets* library to download dataset. You should only use *input image*, *edit prompt*, and *id* columns to generate edited images.
 
 Save the edited images **with the same name as the id column**.
