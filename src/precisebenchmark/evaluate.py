@@ -153,9 +153,23 @@ def compare_two_masks(gt_mask: Image.Image, other_mask: Image.Image):
     }
 
 
+def meta_type_from_transformation(transformation: str):
+    if transformation in {"MoveByPercentage", "MoveByPixel", "MoveTo"}:
+        return "Move"
+    elif transformation in {
+        "ScaleAbsolutelyToPercentage",
+        "ScaleAbsolutelyToPixels",
+        "ScaleByPercentage",
+    }:
+        return "Scale"
+
+    return transformation
+
+
 def find_categorical_results(results):
     categorical_results = {
         "object_class": defaultdict(lambda: defaultdict(list)),
+        "meta_transformation_type": defaultdict(lambda: defaultdict(list)),
         "transformation_type": defaultdict(lambda: defaultdict(list)),
         "summary": defaultdict(lambda: defaultdict(list)),
     }
@@ -163,13 +177,21 @@ def find_categorical_results(results):
     for _, sample_result in results.items():
         object_class = sample_result["object_class"]
         transformation_type = sample_result["transformation_type"]
+        meta_transformation_type = sample_result["meta_transformation_type"]
 
         for metric, value in sample_result.items():
-            if metric in ["object_class", "transformation_type"]:
+            if metric in [
+                "object_class",
+                "transformation_type",
+                "meta_transformation_type",
+            ]:
                 continue
 
             categorical_results["object_class"][object_class][metric].append(value)
             categorical_results["transformation_type"][transformation_type][
+                metric
+            ].append(value)
+            categorical_results["meta_transformation_type"][meta_transformation_type][
                 metric
             ].append(value)
             categorical_results["summary"]["overall"][metric].append(value)
@@ -218,8 +240,8 @@ def main():
     dataset = dataset.to_iterable_dataset()
 
     # TODO: remove!
-    # dataset_len = 10
-    # dataset = dataset.take(dataset_len)
+    dataset_len = 10
+    dataset = dataset.take(dataset_len)
     ###
 
     if args.evaluation_mode == "gt_edited_masks_vs_my_edited_images":
@@ -265,8 +287,10 @@ def main():
                 **compare_two_masks(target_mask, my_prediction),
                 "object_class": gt_sample["object_class"],
                 "transformation_type": gt_sample["transformation_type"],
+                "meta_transformation_type": meta_type_from_transformation(
+                    gt_sample["transformation_type"]
+                ),
             }
-
         except Exception as e:
             print(f"Error processing sample {gt_sample['id']}: {e}")
 
