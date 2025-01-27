@@ -31,7 +31,7 @@ for sample in dataset:
     output_image.save(f"output_folder/{sample['id']}.png")
 ```
 
-**You do not have to download this GitHub repo for evaluation. This is just source code.** You can use it as a pip package.
+You should install our pip package. **You do not have to download this GitHub repo. This is just source code.** 
 
 ```
 pip install git+https://github.com/monurcan/precise_benchmark_for_image_editing.git
