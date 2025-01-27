@@ -9,11 +9,11 @@ The benchmark is available at: https://huggingface.co/datasets/monurcan/precise_
 # How to Evaluate?
 
 Before evaluation, you should first create your predictions folder.
-Use *datasets* library to download dataset. You should only use *input image*, *edit prompt* and *id* columns to generate edited images.
+Use *datasets* library to download dataset. You should only use *input image*, *edit prompt*, and *id* columns to generate edited images.
 
 Save the edited images **with the same name as the id column**.
 
-Thus, ideally your code should be like:
+Thus, ideally, your code should be like this:
 ```
 from datasets import load_dataset
 
@@ -31,13 +31,13 @@ for sample in dataset:
     output_image.save(f"output_folder/{sample['id']}.png")
 ```
 
-You should install our pip package. **You do not have to download this GitHub repo. This is just source code.** 
+You should install our pip package. **It requires Python >=3.10 and CUDA. You do not have to download this GitHub repo. This is just source code.** 
 
 ```
 pip install git+https://github.com/monurcan/precise_benchmark_for_image_editing.git
 ```
 
-Then, use **preciseevaluate** script on your predictions folder. **It requires Python >=3.10 and CUDA.**
+Then, use **preciseevaluate** script in your predictions folder.
 
 This will detect the object mask in the edited image, and compare it against the ground-truth output mask.
 ```
@@ -49,6 +49,7 @@ There are also other evaluation modes available. Refer to the help.
 ```
 preciseevaluate --help
 ```
+
 
 
 # TODO
