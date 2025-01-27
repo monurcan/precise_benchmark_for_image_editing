@@ -15,7 +15,7 @@ def augment_with_gpt(prompt, human_like):
         messages=[
             {
                 "role": "system",
-                "content": "instructions: paraphrase the input, to have the same meaning, but make it as natural for humans to write. Provide 5 possible outputs, avoid enumerating.",
+                "content": "instructions: paraphrase the input, to have the same meaning, but make it as natural for humans to write. Provide 2 possible outputs, avoid enumerating.",
             },
             {"role": "user", "content": human_like},
         ],

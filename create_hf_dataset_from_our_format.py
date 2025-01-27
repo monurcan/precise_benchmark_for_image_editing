@@ -61,9 +61,9 @@ def sample_generator(dataset_folder):
             with open(edit_prompt_path, "r") as f:
                 all_prompts.append(f.read().strip())
 
-            for example_prompt in all_prompts:
+            for prompt_id, example_prompt in enumerate(all_prompts):
                 yield {
-                    "id": f"{sample_dir}_transform_{i}",
+                    "id": f"{sample_dir}_transform_{i}_prompt_{prompt_id}",
                     "input_image": input_image,
                     "edit_prompt": example_prompt,
                     "input_mask": input_mask,

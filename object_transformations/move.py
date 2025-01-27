@@ -135,10 +135,10 @@ class MoveByPixel(ObjectTransformation):
         angle_of_displacement = math.degrees(math.atan2(self.dy, self.dx))
         possible_prompts.extend(
             [
-                f"displace the object to {angle_of_displacement} degrees direction by {magnitude_of_displacement:.2f} pixels",
-                f"move the object to {angle_of_displacement} degrees direction by {magnitude_of_displacement:.2f} pixels",
-                f"translate the object by a vector ({self.dx}, {self.dy}) in the {angle_of_displacement} degrees direction",
-                f"apply a movement to the object by ({self.dx}, {self.dy}) in the {angle_of_displacement} degrees direction",
+                f"displace the object using the vector of {angle_of_displacement:.2f} degrees direction and {magnitude_of_displacement:.2f} pixels magnitude",
+                f"move the object using the vector of {angle_of_displacement:.2f} degrees direction and {magnitude_of_displacement:.2f} pixels magnitude",
+                f"translate the object by a vector ({self.dx}, {self.dy})",
+                f"apply a movement to the object by ({self.dx}, {self.dy})",
             ]
         )
 
@@ -210,10 +210,10 @@ class MoveByPercentage(MoveByPixel):
 
     def _get_manually_generated_prompt(self) -> str:
         possible_prompts = [
-            f"displace the object by ({self.dx_percentage}%, {self.dy_percentage}%)",
-            f"move the object by ({self.dx_percentage}%, {self.dy_percentage}%)",
-            f"translate the object by a vector ({self.dx_percentage}%, {self.dy_percentage}%)",
-            f"apply a movement to the object by ({self.dx_percentage}%, {self.dy_percentage}%)",
+            f"displace the object by ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size",
+            f"move the object by ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size",
+            f"translate the object by a vector ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size",
+            f"apply a movement to the object by ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size",
         ]
 
         return random.choice(possible_prompts)

@@ -9,6 +9,8 @@ TODO: implement evaluate.py, use groundedSAM autodistill. categorical results fo
 
 TODO: add support for reasoning like prompts, make the cat as big as the dog...
 
+TODO: add a README to the hf hub dataset
+
 TODO: update requirements.txt, and, add this as a submodule to the main project
 
 # How to Evaluate?

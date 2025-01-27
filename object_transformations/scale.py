@@ -191,51 +191,52 @@ class ScaleAbsolutelyToPercentage(ScaleBy):
         return super()._process_object(mask)
 
     def _get_manually_generated_prompt(self) -> str:
+        scale_percentage = self.scale_percentage * 100
         possible_prompts = [
-            f"scale the object to the {self.scale_percentage:.2f}% of the image",
-            f"resize the object to the {self.scale_percentage:.2f}% of the image",
-            f"change the size of the object to the {self.scale_percentage:.2f}% of the image",
-            f"change the scale of the object to the {self.scale_percentage:.2f}% of the image size",
-            f"adjust the object's size to {self.scale_percentage:.2f} percent of the image",
+            f"scale the object to the {scale_percentage:.2f}% of the image",
+            f"resize the object to the {scale_percentage:.2f}% of the image",
+            f"change the size of the object to the {scale_percentage:.2f}% of the image",
+            f"change the scale of the object to the {scale_percentage:.2f}% of the image size",
+            f"adjust the object's size to {scale_percentage:.2f} percent of the image",
         ]
 
         # Additional prompts based on scale factor
         if self.scale_factor < 1:
             possible_prompts.append(
-                f"shrink the object to the {self.scale_percentage:.2f}% of the image"
+                f"shrink the object to the {scale_percentage:.2f}% of the image"
             )
             possible_prompts.append(
-                f"reduce the object's size to {self.scale_percentage:.2f}% of the image"
+                f"reduce the object's size to {scale_percentage:.2f}% of the image"
             )
             possible_prompts.append(
-                f"make the object smaller to {self.scale_percentage:.2f}% of the image size"
+                f"make the object smaller to {scale_percentage:.2f}% of the image size"
             )
         else:
             possible_prompts.append(
-                f"enlarge the object to {self.scale_percentage:.2f}% of the total image size"
+                f"enlarge the object to {scale_percentage:.2f}% of the total image size"
             )
             possible_prompts.append(
-                f"increase the object's size to {self.scale_percentage:.2f}% of the image"
+                f"increase the object's size to {scale_percentage:.2f}% of the image"
             )
             possible_prompts.append(
-                f"boost the size of the object to {self.scale_percentage:.2f}% of the image size"
+                f"boost the size of the object to {scale_percentage:.2f}% of the image size"
             )
 
         if self.scale_factor > 2:
             possible_prompts.append(
-                f"significantly increase the size of the object to {self.scale_percentage:.2f} percent of the image size"
+                f"significantly increase the size of the object to {scale_percentage:.2f} percent of the image size"
             )
         elif 1.3 < self.scale_factor <= 2:
             possible_prompts.append(
-                f"noticeably enlarge the object to {self.scale_percentage:.2f}% of the image size"
+                f"noticeably enlarge the object to {scale_percentage:.2f}% of the image size"
             )
         elif 0.5 < self.scale_factor <= 0.7:
             possible_prompts.append(
-                f"reduce the object's size considerably to {self.scale_percentage:.2f} percent of the image size"
+                f"reduce the object's size considerably to {scale_percentage:.2f} percent of the image size"
             )
         elif self.scale_factor <= 0.5:
             possible_prompts.append(
-                f"drastically shrink the object to {self.scale_percentage:.2f}% of the total image size"
+                f"drastically shrink the object to {scale_percentage:.2f}% of the total image size"
             )
 
         return random.choice(possible_prompts)
