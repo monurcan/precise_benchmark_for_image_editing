@@ -5,7 +5,7 @@ from typing import List
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 
 
 @dataclass
@@ -199,7 +199,45 @@ def match_masks(voc_object, instance_mask_path, semantic_mask_path):
                 break
 
 
-def parse_voc(folder_path, remove_multiple_same_instance_images=True):
+def resize_and_pad(image, target_size=512, border_color=0):
+    # Get the original dimensions
+    h, w = image.shape[:2]
+
+    # Determine the scaling factor
+    scale = target_size / max(h, w)
+
+    # Resize the image
+    resized_image = cv2.resize(
+        image, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_AREA
+    )
+
+    # Calculate padding
+    new_h, new_w = resized_image.shape[:2]
+    pad_h = (target_size - new_h) // 2
+    pad_w = (target_size - new_w) // 2
+
+    # Add padding
+    padded_image = cv2.copyMakeBorder(
+        resized_image,
+        pad_h,
+        pad_h,
+        pad_w,
+        pad_w,
+        cv2.BORDER_CONSTANT,
+        value=border_color,
+    )
+
+    # Ensure the image is exactly 512x512
+    padded_image = cv2.resize(
+        padded_image, (target_size, target_size), interpolation=cv2.INTER_AREA
+    )
+
+    return padded_image
+
+
+def parse_voc(
+    folder_path, remove_multiple_same_instance_images=True, allow_nonsquare_images=False
+):
     for (
         instance_mask_path,
         semantic_mask_path,
@@ -217,7 +255,16 @@ def parse_voc(folder_path, remove_multiple_same_instance_images=True):
 
         input_annotation.image = cv2.imread(str(input_image_path))
         match_masks(input_annotation, instance_mask_path, semantic_mask_path)
-        # # add masks by matching to the bb...
+
+        if not allow_nonsquare_images:
+            for obj in input_annotation.objects:
+                if obj.mask is not None:
+                    obj.mask = resize_and_pad(obj.mask)
+
+            input_annotation.image = resize_and_pad(input_annotation.image)
+
+            # TODO: BB and image size is wrong now but I don't use them
+
         yield input_annotation
 
 

@@ -2,16 +2,16 @@ import random
 from typing import Tuple
 
 import numpy as np
-
 from object_transformations.flip import Flip
-from object_transformations.move import MoveByPixel, MoveTo, MoveByPercentage
+from object_transformations.move import MoveByPercentage, MoveByPixel, MoveTo
 from object_transformations.object_transformation import ObjectTransformation
 from object_transformations.rotate import Rotate
 from object_transformations.scale import (
-    ScaleBy,
-    ScaleAbsolutelyToPixels,
     ScaleAbsolutelyToPercentage,
+    ScaleAbsolutelyToPixels,
+    ScaleBy,
 )
+from object_transformations.shear import Shear
 
 
 class Compose(ObjectTransformation):
@@ -28,7 +28,8 @@ class Compose(ObjectTransformation):
                 MoveByPixel(),
                 MoveByPercentage(),
                 MoveTo(),
-            ]  # Rotate(), Sheer(),
+                Rotate(),
+            ]  #  Shear(),
 
             random.shuffle(transformations)
             subset_size = random.randint(2, len(transformations))
@@ -151,8 +152,8 @@ if __name__ == "__main__":
     import utils.create_random_simple_shape_mask as mask_generator
     from object_transformations.move import MoveByPercentage, MoveTo
     from object_transformations.scale import (
-        ScaleAbsolutelyToPixels,
         ScaleAbsolutelyToPercentage,
+        ScaleAbsolutelyToPixels,
     )
 
     # Generate a random mask

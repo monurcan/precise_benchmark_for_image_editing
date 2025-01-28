@@ -6,6 +6,7 @@ import numpy as np
 from object_transformations.compose import Compose
 from object_transformations.flip import Flip
 from object_transformations.move import MoveByPercentage, MoveByPixel, MoveTo
+from object_transformations.rotate import Rotate
 from object_transformations.scale import (
     ScaleAbsolutelyToPercentage,
     ScaleAbsolutelyToPixels,
@@ -13,8 +14,6 @@ from object_transformations.scale import (
 )
 from object_transformations.shear import Shear
 from tqdm import tqdm
-
-# from object_transformations.rotate import Rotate
 from utils.pascal_voc_parser import parse_voc
 from utils.set_seeds import set_seeds
 
@@ -62,6 +61,11 @@ def parse_args():
         action="store_true",
         help="Don't include the truncated objects",
     )
+    parser.add_argument(
+        "--allow_nonsquare_images",
+        action="store_true",
+        help="Allow non-square images. If you specify this option, rectangle images will be used with their original dimensions. Otherwise, we will convert it to a square image.",
+    )
 
     return parser.parse_args()
 
@@ -102,7 +106,9 @@ def get_transformed_masks(obj, transform_count: int, composition_probability: fl
                 MoveByPixel(),
                 MoveByPercentage(),
                 MoveTo(),
-            ]  # Rotate(), Shear(),
+                Rotate(),
+                Shear(),
+            ]
             if not is_flip_applied:
                 possible_transformations.append(Flip())
 
@@ -216,7 +222,9 @@ if __name__ == "__main__":
         Path(args.save_path).mkdir(parents=True, exist_ok=True)
 
     for voc_object in parse_voc(
-        args.input_folder, remove_multiple_same_instance_images=True
+        args.input_folder,
+        remove_multiple_same_instance_images=True,
+        allow_nonsquare_images=args.allow_nonsquare_images,
     ):
         for obj_i, obj in enumerate(voc_object.objects):
             if not is_obj_valid(
