@@ -268,8 +268,9 @@ def parse_voc(
                 if obj.mask is not None:
                     obj.mask = resize_and_pad(obj.mask)
 
+            image_net_mean = 114
             input_annotation.image = resize_and_pad(
-                input_annotation.image, border_color=114
+                input_annotation.image, border_color=image_net_mean
             )
 
             # TODO: BB and image size is wrong now but I don't use them
