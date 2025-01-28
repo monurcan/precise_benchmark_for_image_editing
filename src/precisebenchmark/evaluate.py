@@ -36,14 +36,14 @@ def parse_args():
         "--evaluation_mode",
         type=str,
         choices=[
-            "gt_bounding_boxes_vs_my_bounding_boxes",
+            "gt_input_masks_vs_my_bounding_boxes",
             "gt_input_masks_vs_my_input_masks",
             "gt_edited_masks_vs_my_edited_masks",
             "gt_edited_masks_vs_my_edited_images",
         ],
         help="""
             There are 4 different evaluation modes.
-            - gt_bounding_boxes_vs_my_bounding_boxes: compares ground-truth object bounding box in the input images with the bounding box images in your input folder. (VLM in our paper.)
+            - gt_input_masks_vs_my_bounding_boxes: compares ground-truth object mask in the input images with the bounding box images in your input folder. (VLM in our paper.)
             - gt_input_masks_vs_my_input_masks: compares ground-truth object mask in the input image with the binary mask images in your input folder. (SAM in our paper.)
             - gt_edited_masks_vs_my_edited_masks: compares ground-truth object mask in the transformed image with the binary mask images in your input folder. (LLM in our paper.)
             - gt_edited_masks_vs_my_edited_images: compares ground-truth object mask in the transformed image with the binary mask extracted by GroundedSAM from the edited images in your input folder. This is the default mode. (Drawer in our paper.)
@@ -276,10 +276,11 @@ def main():
                 "gt_edited_masks_vs_my_edited_masks",
             ]:
                 target_mask = gt_sample["edited_mask"]
-            elif args.evaluation_mode == "gt_input_masks_vs_my_input_masks":
+            elif args.evaluation_mode in [
+                "gt_input_masks_vs_my_input_masks",
+                "gt_input_masks_vs_my_bounding_boxes",
+            ]:
                 target_mask = gt_sample["input_mask"]
-            elif args.evaluation_mode == "gt_bounding_boxes_vs_my_bounding_boxes":
-                target_mask = convert_mask_to_bbox(gt_sample["input_mask"])
             else:
                 raise ValueError("Invalid evaluation mode")
 
