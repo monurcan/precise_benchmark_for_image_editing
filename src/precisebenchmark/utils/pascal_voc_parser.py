@@ -242,6 +242,10 @@ def resize_and_pad(image, target_size=512, border_color=0):
     return padded_image
 
 
+def resize(image, target_size=512):
+    return cv2.resize(image, (target_size, target_size), interpolation=cv2.INTER_AREA)
+
+
 def parse_voc(
     folder_path, remove_multiple_same_instance_images=True, allow_nonsquare_images=False
 ):
@@ -266,12 +270,10 @@ def parse_voc(
         if not allow_nonsquare_images:
             for obj in input_annotation.objects:
                 if obj.mask is not None:
-                    obj.mask = resize_and_pad(obj.mask)
+                    obj.mask = resize(obj.mask)
 
-            image_net_mean = 114
-            input_annotation.image = resize_and_pad(
-                input_annotation.image, border_color=image_net_mean
-            )
+            # image_net_mean = 114
+            input_annotation.image = resize(input_annotation.image)
 
             # TODO: BB and image size is wrong now but I don't use them
 
