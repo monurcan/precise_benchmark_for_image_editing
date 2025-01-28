@@ -3,8 +3,6 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from tqdm import tqdm
-
 from object_transformations.compose import Compose
 from object_transformations.flip import Flip
 from object_transformations.move import MoveByPercentage, MoveByPixel, MoveTo
@@ -13,6 +11,8 @@ from object_transformations.scale import (
     ScaleAbsolutelyToPixels,
     ScaleBy,
 )
+from object_transformations.shear import Shear
+from tqdm import tqdm
 
 # from object_transformations.rotate import Rotate
 from utils.pascal_voc_parser import parse_voc
@@ -102,7 +102,7 @@ def get_transformed_masks(obj, transform_count: int, composition_probability: fl
                 MoveByPixel(),
                 MoveByPercentage(),
                 MoveTo(),
-            ]  # Rotate(), Sheer(),
+            ]  # Rotate(), Shear(),
             if not is_flip_applied:
                 possible_transformations.append(Flip())
 
