@@ -103,11 +103,11 @@ class Rotate(ObjectTransformation):
 
     def _get_manually_generated_prompt(self) -> str:
         possible_prompts = [
-            f"rotate the object by {self.angle:.2f} degrees",
-            f"rotate the object around its center by {self.angle:.2f} degrees",
-            f"apply a rotation of {self.angle:.2f} degrees to the object",
-            f"turn the object by {self.angle:.2f} degrees",
-            f"rotate the object at an angle of {self.angle:.2f} degrees",
+            f"rotate the object by {-self.angle:.2f} degrees. my convention: counterclockwise is positive",
+            f"rotate the object around its center by {-self.angle:.2f} degrees. my convention: counterclockwise is positive",
+            f"apply a rotation of {-self.angle:.2f} degrees to the object. my convention: counterclockwise is positive",
+            f"turn the object by {-self.angle:.2f} degrees. my convention: counterclockwise is positive",
+            f"rotate the object at an angle of {-self.angle:.2f} degrees. my convention: counterclockwise is positive",
         ]
 
         # Additional prompts based on rotation direction
@@ -121,10 +121,10 @@ class Rotate(ObjectTransformation):
             )
 
         # Variations based on the angle of rotation
-        if self.angle > 90:
-            possible_prompts.append("rotate the object drastically clockwise")
-        if self.angle < -90:
-            possible_prompts.append("rotate the object drastically counterclockwise")
+        # if self.angle > 90:
+        #     possible_prompts.append("rotate the object drastically clockwise")
+        # if self.angle < -90:
+        #     possible_prompts.append("rotate the object drastically counterclockwise")
 
         return random.choice(possible_prompts)
 

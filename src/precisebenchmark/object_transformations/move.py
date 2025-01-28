@@ -125,18 +125,25 @@ class MoveByPixel(ObjectTransformation):
 
     def _get_manually_generated_prompt(self) -> str:
         possible_prompts = [
-            f"displace the object by a vector of ({self.dx}, {self.dy}) pixels",
-            f"move the object by a vector of ({self.dx}, {self.dy}) pixels",
-            f"translate the object by a vector ({self.dx}, {self.dy}) pixels",
-            f"apply a movement to the object by a vector of ({self.dx}, {self.dy}) pixels",
+            f"displace the object by a vector of ({self.dx}, {-self.dy}) pixels. my convention is: the origin is top left corner",
+            f"move the object by a vector of ({self.dx}, {-self.dy}) pixels. my convention is: the origin is top left corner",
+            f"translate the object by a vector ({self.dx}, {-self.dy}) pixels. my convention is: the origin is top left corner",
+            f"apply a movement to the object by a vector of ({self.dx}, {-self.dy}) pixels. my convention is: the origin is top left corner",
         ]
+
+        possible_prompts.extend(
+            [
+                f"move the object {self.dx} pixels to the right and {self.dy} pixels up",
+                f"displace the object {self.dx} pixels to the right and {self.dy} pixels up",
+            ]
+        )
 
         magnitude_of_displacement = math.sqrt(self.dx**2 + self.dy**2)
         angle_of_displacement = math.degrees(math.atan2(self.dy, self.dx))
         possible_prompts.extend(
             [
-                f"displace the object using the vector of {angle_of_displacement:.2f} degrees direction and {magnitude_of_displacement:.2f} pixels magnitude",
-                f"move the object using the vector of {angle_of_displacement:.2f} degrees direction and {magnitude_of_displacement:.2f} pixels magnitude",
+                f"displace the object using the vector of {angle_of_displacement:.2f} degrees direction and {magnitude_of_displacement:.2f} pixels magnitude. my convention is: counterclockwise angle is positive",
+                f"move the object using the vector of {angle_of_displacement:.2f} degrees direction and {magnitude_of_displacement:.2f} pixels magnitude. my convention is: counterclockwise angle is positive",
             ]
         )
 
@@ -208,11 +215,18 @@ class MoveByPercentage(MoveByPixel):
 
     def _get_manually_generated_prompt(self) -> str:
         possible_prompts = [
-            f"displace the object by ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size",
-            f"move the object by ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size",
-            f"translate the object by a vector ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size",
-            f"apply a movement to the object by ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size",
+            f"displace the object by ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size. my convention is: the origin is bottom left corner",
+            f"move the object by ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size. my convention is: the origin is bottom left corner",
+            f"translate the object by a vector ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size. my convention is: the origin is bottom left corner",
+            f"apply a movement to the object by ({self.dx_percentage}%, {self.dy_percentage}%), percentages are with respect to the image size. my convention is: the origin is bottom left corner",
         ]
+        possible_prompts.extend(
+            [
+                f"move the object to {self.dx_percentage}% right and {self.dy_percentage}% up. here percentages are with respect to the image size",
+                f"displace the object to {self.dx_percentage}% right and {self.dy_percentage}% up. here percentages are with respect to the image size",
+                f"translate the object to {self.dx_percentage}% right and {self.dy_percentage}% up. here percentages are with respect to the image",
+            ]
+        )
 
         return random.choice(possible_prompts)
 
