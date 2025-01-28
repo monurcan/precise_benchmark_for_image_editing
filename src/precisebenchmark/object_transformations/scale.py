@@ -101,7 +101,7 @@ class ScaleBy(ObjectTransformation):
             "change the size of the object by a factor of {self.scale_factor:.2f}",
             "change the scale of the object by a factor of {self.scale_factor:.2f}",
             "adjust the object's size to a factor of {self.scale_factor:.2f}",
-            "apply a scale transformation with a factor of {self.scale_factor:.2f}",
+            "apply a scale transformation with a factor of {self.scale_factor:.2f} to the object",
             "resize the object to {self.scale_factor:.2f} times its original size",
             "alter the dimensions of the object by a scaling factor of {self.scale_factor:.2f}",
             "modify the object's scale by {self.scale_factor:.2f} for better alignment",
