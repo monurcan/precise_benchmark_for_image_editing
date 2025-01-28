@@ -200,6 +200,13 @@ def match_masks(voc_object, instance_mask_path, semantic_mask_path):
 
 
 def resize_and_pad(image, target_size=512, border_color=0):
+    if len(image.shape) == 3:
+        border_color = (
+            border_color,
+            border_color,
+            border_color,
+        )
+
     # Get the original dimensions
     h, w = image.shape[:2]
 
@@ -261,7 +268,9 @@ def parse_voc(
                 if obj.mask is not None:
                     obj.mask = resize_and_pad(obj.mask)
 
-            input_annotation.image = resize_and_pad(input_annotation.image)
+            input_annotation.image = resize_and_pad(
+                input_annotation.image, border_color=114
+            )
 
             # TODO: BB and image size is wrong now but I don't use them
 

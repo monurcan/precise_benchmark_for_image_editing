@@ -35,11 +35,11 @@ class Shear(AffineTransform):
 
     def _get_manually_generated_prompt(self) -> str:
         possible_prompts = [
-            f"Shear the object by using the following shear coefficients {self.shear_x} along the x-axis and {self.shear_y} along the y-axis.",
-            f"Apply a shear transformation to the object with shear coefficients {self.shear_x} and {self.shear_y}.",
-            f"Transform the object by shearing it with shear coefficients {self.shear_x} and {self.shear_y}.",
-            f"Shear the object with shear coefficients {self.shear_x} and {self.shear_y}.",
-            f"Use the shear coefficients {self.shear_x} and {self.shear_y} to shear the object.",
+            f"Shear the object by using the following shear coefficients {self.shear_x:.2f} along the x-axis and {self.shear_y:.2f} along the y-axis.",
+            f"Apply a shear transformation to the object with shear coefficients {self.shear_x:.2f} in x and {self.shear_y:.2f} in y.",
+            f"Transform the object by shearing it with shear coefficients {self.shear_x:.2f} in x and {self.shear_y:.2f} in y.",
+            f"Shear the object with shear coefficients {self.shear_x:.2f} in x and {self.shear_y:.2f} in y.",
+            f"Use the shear coefficients {self.shear_x:.2f} in x and {self.shear_y:.2f} in y to shear the object.",
         ]
 
         return random.choice(possible_prompts)
