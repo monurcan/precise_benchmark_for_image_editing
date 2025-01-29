@@ -244,7 +244,7 @@ class ScaleAbsolutelyToPercentage(ScaleBy):
 
 class ScaleAbsolutelyToPixels(ScaleBy):
     def __init__(self, tuple_new_width_height: tuple = None) -> None:
-        if tuple_new_width_height is None and tuple_new_width_height is None:
+        if tuple_new_width_height is None:
             if random.random() < 0.5:
                 self.new_width = random.randint(50, 150)
                 self.new_height = None

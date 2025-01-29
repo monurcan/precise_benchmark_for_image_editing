@@ -1,4 +1,5 @@
 import argparse
+import random
 from pathlib import Path
 
 import cv2
@@ -12,8 +13,8 @@ from object_transformations.scale import (
     ScaleAbsolutelyToPixels,
     ScaleBy,
 )
+from object_transformations.reasoning import Reasoning
 from object_transformations.shear import Shear
-from tqdm import tqdm
 from utils.pascal_voc_parser import parse_voc
 from utils.set_seeds import set_seeds
 
@@ -42,12 +43,18 @@ def parse_args():
         help="Probability of applying a composition of transformations",
     )
     parser.add_argument(
+        "--reasoning_probability",
+        type=float,
+        default=0.02,
+        help="Probability of applying a transformations requiring reasoning. Example: make the cat's height as big as the dog's height.",
+    )
+    parser.add_argument(
         "--save_path", type=str, help="Path to save the transformed images"
     )
     parser.add_argument(
         "--min_percentage_area",
         type=float,
-        default=10,
+        default=15,
         help="Minimum percentage area of objects to keep.",
     )
     parser.add_argument(
@@ -87,16 +94,30 @@ def is_obj_valid(
     return True
 
 
-def get_transformed_masks(obj, transform_count: int, composition_probability: float):
+def get_transformed_masks(
+    obj,
+    transform_count: int,
+    composition_probability: float,
+    reasoning_probability: float,
+    all_objects,
+):
+    print(all_objects)
+
     result = []
 
     # To guarantee uniqueness of the transformations
     is_flip_applied = False
 
     for j in range(transform_count):
-        if np.random.rand() < composition_probability:
+        random_btw_0_1 = np.random.rand()
+
+        if random_btw_0_1 < composition_probability:
             # Composition of transformations with a certain probability
             transformation = Compose()
+        elif len(all_objects) > 1 and (
+            random_btw_0_1 < reasoning_probability + composition_probability
+        ):
+            transformation = Reasoning(obj, all_objects)
         else:
             # Random transformation among 4 different types
             possible_transformations = [
@@ -237,7 +258,11 @@ if __name__ == "__main__":
 
             try:
                 transformed_masks = get_transformed_masks(
-                    obj, args.transform_count, args.composition_probability
+                    obj,
+                    args.transform_count,
+                    args.composition_probability,
+                    args.reasoning_probability,
+                    voc_object.objects,
                 )
             except Exception as e:
                 print(f"Error processing object {obj.name}: {e}")
