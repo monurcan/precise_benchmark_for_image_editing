@@ -72,7 +72,7 @@ def augment_prompt(dataset_path):
             with open(gpt_prompt_file, "w") as gf:
                 gf.write(combined_content)
 
-            print(f"Created: {gpt_prompt_file}")
+            # print(f"Created: {gpt_prompt_file}")
 
 
 if __name__ == "__main__":

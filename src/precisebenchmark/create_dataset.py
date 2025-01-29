@@ -45,7 +45,7 @@ def parse_args():
     parser.add_argument(
         "--reasoning_probability",
         type=float,
-        default=0.02,
+        default=0.06,
         help="Probability of applying a transformations requiring reasoning. Example: make the cat's height as big as the dog's height.",
     )
     parser.add_argument(
@@ -101,8 +101,6 @@ def get_transformed_masks(
     reasoning_probability: float,
     all_objects,
 ):
-    print(all_objects)
-
     result = []
 
     # To guarantee uniqueness of the transformations
