@@ -5,6 +5,7 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
+import cv2
 import numpy as np
 from datasets import load_dataset
 from PIL import Image
@@ -126,6 +127,13 @@ def compare_two_masks(gt_mask: Image.Image, other_mask: Image.Image):
     # Convert PIL images to NumPy arrays
     gt_mask = np.array(gt_mask, dtype=np.float32)
     other_mask = np.array(other_mask, dtype=np.float32)
+
+    # resize the other_mask to gt_mask size using opencv
+    if (
+        other_mask.shape[0] != gt_mask.shape[0]
+        or other_mask.shape[1] != gt_mask.shape[1]
+    ):
+        other_mask = cv2.resize(other_mask, (gt_mask.shape[1], gt_mask.shape[0]))
 
     # Check if both masks have the same shape
     if gt_mask.shape != other_mask.shape:
