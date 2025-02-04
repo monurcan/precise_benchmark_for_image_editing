@@ -12,3 +12,4 @@ build-backend = "setuptools.build_meta"
 
 [project.scripts]
 preciseevaluate = "precisebenchmark.evaluate:main"
+analyzeresults = "precisebenchmark.analyze:main"
