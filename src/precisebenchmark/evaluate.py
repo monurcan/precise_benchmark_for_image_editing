@@ -174,29 +174,42 @@ def meta_type_from_transformation(transformation: str):
     return transformation
 
 
+def transformation_strength(input_mask, output_mask):
+    iou_before_after = compare_two_masks(input_mask, output_mask)["iou"]
+
+    if iou_before_after > 0.9:
+        return "Easy"
+
+    if iou_before_after > 0.5:
+        return "Medium"
+
+    return "Hard"
+
+
 def find_categorical_results(results):
     categorical_results = {
         "object_class": defaultdict(lambda: defaultdict(list)),
         "meta_transformation_type": defaultdict(lambda: defaultdict(list)),
         "transformation_type": defaultdict(lambda: defaultdict(list)),
+        "transformation_strength": defaultdict(lambda: defaultdict(list)),
         "summary": defaultdict(lambda: defaultdict(list)),
     }
 
     for _, sample_result in results.items():
         object_class = sample_result["object_class"]
         transformation_type = sample_result["transformation_type"]
+        transformation_strength = sample_result["transformation_strength"]
         meta_transformation_type = sample_result["meta_transformation_type"]
 
         for metric, value in sample_result.items():
-            if metric in [
-                "object_class",
-                "transformation_type",
-                "meta_transformation_type",
-            ]:
+            if metric in categorical_results:
                 continue
 
             categorical_results["object_class"][object_class][metric].append(value)
             categorical_results["transformation_type"][transformation_type][
+                metric
+            ].append(value)
+            categorical_results["transformation_strength"][transformation_strength][
                 metric
             ].append(value)
             categorical_results["meta_transformation_type"][meta_transformation_type][
@@ -298,6 +311,9 @@ def main():
                 "transformation_type": gt_sample["transformation_type"],
                 "meta_transformation_type": meta_type_from_transformation(
                     gt_sample["transformation_type"]
+                ),
+                "transformation_strength": transformation_strength(
+                    gt_sample["edited_mask"], gt_sample["input_mask"]
                 ),
             }
         except Exception as e:
