@@ -24,7 +24,7 @@ def delete_files(folder, files_to_delete):
         file_path = os.path.join(folder, filename)
         try:
             os.remove(file_path)
-            print(f"Deleted: {file_path}")
+            # print(f"Deleted: {file_path}")
         except Exception as e:
             print(f"Could not delete {file_path}: {e}")
 
