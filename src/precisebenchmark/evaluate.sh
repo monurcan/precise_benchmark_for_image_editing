@@ -4,12 +4,12 @@ if [ -z "$1" ] || [ -z "$2" ]; then
 fi
 
 echo "============================="
-echo "Removing unsucesful attempts not existing in the final outputs..."
+echo "Handling unsucesful attempts not existing in the final outputs..."
 echo "============================="
-python3 remove_unsuccessful_tries.py --target_folder "$1/evaluation_5_after_sld_refine/" --input_folder "$1/evaluation_1_after_vlm/"
-python3 remove_unsuccessful_tries.py --target_folder "$1/evaluation_5_after_sld_refine/" --input_folder "$1/evaluation_2_after_sam/"
-python3 remove_unsuccessful_tries.py --target_folder "$1/evaluation_5_after_sld_refine/" --input_folder "$1/evaluation_3_after_llm_transformation/"
-python3 remove_unsuccessful_tries.py --target_folder "$1/evaluation_5_after_sld_refine/" --input_folder "$1/evaluation_4_after_sld/"
+python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/" --input_folder "$1/evaluation_2_after_sam/" --operation_type "white"
+python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/" --input_folder "$1/evaluation_3_after_llm_transformation/" --operation_type "white"
+python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/" --input_folder "$1/evaluation_4_after_sld/" --operation_type "inputimage" --input_images_folder "/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/generated_datasets/version8"
+python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/" --input_folder "$1/evaluation_5_after_sld_refine/" --operation_type "inputimage" --input_images_folder "/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/generated_datasets/version8"
 
 echo "============================="
 echo "Evaluating the results..."
