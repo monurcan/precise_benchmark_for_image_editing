@@ -128,6 +128,10 @@ def compare_two_masks(gt_mask: Image.Image, other_mask: Image.Image):
     gt_mask = np.array(gt_mask, dtype=np.float32)
     other_mask = np.array(other_mask, dtype=np.float32)
 
+    # No mask found
+    if other_mask.ndim == 3:
+        other_mask = other_mask[:, :, 0]
+
     # resize the other_mask to gt_mask size using opencv
     if (
         other_mask.shape[0] != gt_mask.shape[0]
