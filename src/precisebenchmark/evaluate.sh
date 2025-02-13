@@ -10,6 +10,8 @@ python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/
 python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/" --input_folder "$1/evaluation_3_after_llm_transformation/" --operation_type "white"
 python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/" --input_folder "$1/evaluation_4_after_sld/" --operation_type "inputimage" --input_images_folder "/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/generated_datasets/version8"
 python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/" --input_folder "$1/evaluation_5_after_sld_refine/" --operation_type "inputimage" --input_images_folder "/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/generated_datasets/version8"
+#python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/" --input_folder "$1/evaluation_6___________/" --operation_type "delete"
+#python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/" --input_folder "$1/evaluation_6___________/" --operation_type "inputimage" --input_images_folder "/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/generated_datasets/version8"
 
 echo "============================="
 echo "Evaluating the results..."
