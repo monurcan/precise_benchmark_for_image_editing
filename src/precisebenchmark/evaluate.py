@@ -172,6 +172,7 @@ def meta_type_from_transformation(transformation: str):
         "ScaleAbsolutelyToPercentage",
         "ScaleAbsolutelyToPixels",
         "ScaleByPercentage",
+        "ScaleBy",
     }:
         return "Scale"
 

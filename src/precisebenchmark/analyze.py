@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-import os
-import json
-import glob
 import argparse
+import glob
+import json
+import os
+
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from matplotlib.backends.backend_pdf import PdfPages
 from tabulate import tabulate
 
 
@@ -117,9 +121,100 @@ def generate_comparison_tables(file_data):
     return "\n".join(output_lines)
 
 
+def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"):
+    """
+    For each main key, this function creates a bar chart for the 'number_of_samples' metric
+    and compiles all charts into a single PDF file using PdfPages.
+    Each chart is saved with high quality (dpi=300).
+
+    Colors:
+      - First four figures use: '#D5E8D4', '#DAE8FC', '#000000', '#FFE6CC'
+      - Any further figures use 'skyblue'
+    """
+    from matplotlib.backends.backend_pdf import PdfPages
+    import matplotlib.pyplot as plt
+    from matplotlib import ticker
+
+    pdf = PdfPages(output_pdf)
+
+    # Determine union of main keys across all files.
+    main_keys = set()
+    for cat_results in file_data.values():
+        main_keys.update(cat_results.keys())
+    main_keys = sorted(main_keys)
+
+    sorted_files = sorted(file_data.keys())
+
+    # Define custom colors for the first four figures.
+    custom_colors = ["#D5E8D4", "#DAE8FC", "#000000", "#FFE6CC"]
+
+    # Use an index to assign colors per figure.
+    for idx, main_key in enumerate(main_keys):
+        # Find a file that has this main key.
+        sample_data = None
+        for fname in sorted_files:
+            cat_results = file_data[fname]
+            if main_key in cat_results and isinstance(cat_results[main_key], dict):
+                sample_data = cat_results[main_key]
+                break
+        if sample_data is None:
+            continue  # no data for main key
+
+        labels = []
+        values = []
+        for subkey, subval in sample_data.items():
+            if isinstance(subval, dict):
+                num = subval.get("number_of_samples", None)
+                if num is not None:
+                    labels.append(subkey)
+                    values.append(num)
+
+        if labels and values:
+            # Sort the data in descending order based on values
+            sorted_data = sorted(zip(labels, values), key=lambda x: x[1], reverse=True)
+            labels, values = zip(*sorted_data)
+
+            fig, ax = plt.subplots(figsize=(8, 6))
+
+            # Determine the color for this figure.
+            if idx < len(custom_colors):
+                color = custom_colors[idx]
+            else:
+                color = "skyblue"
+
+            # Bar Chart with sorted x-axis, using the assigned color for all bars.
+            ax.bar(labels, values, color=color)
+            ax.set_ylabel("Number of Samples")
+            ax.tick_params(axis="x", rotation=45)
+
+            # Annotate bars with their value.
+            for i, v in enumerate(values):
+                ax.text(i, v + max(values) * 0.01, str(v), ha="center", va="bottom")
+
+            # Remove all spines (borders).
+            for spine in ax.spines.values():
+                spine.set_visible(False)
+
+            # Place grid behind the plot elements.
+            ax.set_axisbelow(True)
+
+            # Set sparse y-axis ticks (adjust nbins as needed).
+            ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=5))
+
+            # Add horizontal grid lines only on the y-axis.
+            ax.grid(which="major", axis="y", linestyle="--", linewidth=0.5)
+
+            fig.tight_layout()
+            pdf.savefig(fig, dpi=300)  # Save with high quality.
+            plt.close(fig)
+
+    pdf.close()
+    print(f"Saved bar charts PDF to {output_pdf}")
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Compare JSON files by reading their 'categorical_results' and printing tables."
+        description="Compare JSON files by reading their 'categorical_results', printing tables, and generating a PDF of 'number_of_samples' pie charts."
     )
     parser.add_argument(
         "directory", help="Path to the directory containing JSON files."
@@ -127,7 +222,7 @@ def main():
     parser.add_argument(
         "--output",
         "-o",
-        help="Path to save the comparison tables as a file. Default: stdout.",
+        help="Path of the folder to save the comparison tables and graphs. Default: stdout.",
         default=None,
         type=str,
     )
@@ -138,18 +233,27 @@ def main():
         print("No valid JSON files were loaded. Exiting.")
         return
 
-    # Generate the comparison tables as a single string.
+    # Generate the comparison tables.
     output_content = generate_comparison_tables(file_data)
-
     if args.output:
+        os.makedirs(args.output, exist_ok=True)
         try:
-            with open(args.output, "w") as f:
+            with open(os.path.join(args.output, "tables.txt"), "w") as f:
                 f.write(output_content)
-            print(f"Comparison tables saved to {args.output}")
+            print(
+                f"Comparison tables saved to {os.path.join(args.output, 'tables.txt')}"
+            )
         except Exception as e:
-            print(f"Error writing to {args.output}: {e}")
+            print(
+                f"Error writing tables to {os.path.join(args.output, 'tables.txt')}: {e}"
+            )
     else:
         print(output_content)
+
+    if args.output:
+        generate_number_of_samples_pdf(
+            file_data, output_pdf=os.path.join(args.output, "number_of_samples.pdf")
+        )
 
 
 if __name__ == "__main__":
