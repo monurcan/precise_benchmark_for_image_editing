@@ -228,6 +228,9 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
         "aeroplane": "plane",
         "potted plant": "plant",
         "dining table": "table",
+        "motorbike": "bike",
+        "Reasoning": "Reason",
+        "Compose": "Mix",
     }
 
     main_keys = set()
@@ -278,9 +281,9 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
         return
 
     fixed_bar_width = 0.8
-    label_fontsize = 22
-    tick_fontsize = 20
-    annotation_fontsize = 20
+    label_fontsize = 28
+    tick_fontsize = 26
+    annotation_fontsize = 26
     second_row_ratios = [d["n_bars"] for d in subplot_data[1:]]
     top_width = subplot_data[0]["n_bars"]
     bottom_width = sum(second_row_ratios)
@@ -303,9 +306,7 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
     ax0.bar(x, values, color=color, width=fixed_bar_width)
     ax0.set_xticks(x)
     ax0.set_xticklabels(mapped_labels, ha="center", fontsize=tick_fontsize)
-    ax0.set_title(
-        "(a) The distribution of object classes", fontsize=label_fontsize, pad=20
-    )
+    ax0.set_title("(a) Object classes", fontsize=label_fontsize, pad=20)
     ax0.set_yticks([])
     ax0.tick_params(axis="x", which="both", length=0)
     for spine in ax0.spines.values():
@@ -338,7 +339,7 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
     ax1.set_xticks(x)
     ax1.set_xticklabels(mapped_labels, ha="center", fontsize=tick_fontsize)
     ax1.set_title(
-        "(b) The distribution of different transformation types",
+        "(b) Different transformation types",
         fontsize=label_fontsize,
         pad=20,
     )
@@ -369,7 +370,7 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
     ax2.set_xticks(x)
     ax2.set_xticklabels(mapped_labels, ha="center", fontsize=tick_fontsize)
     ax2.set_title(
-        "(c) The distribution of transformation difficulty levels",
+        "(c) Transformation difficulty",
         fontsize=label_fontsize,
         pad=20,
     )
