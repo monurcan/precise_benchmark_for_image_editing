@@ -36,11 +36,13 @@ def load_json_files(directory):
     return file_data
 
 
-def format_value(value):
+def format_value(value, metric):
     """
     Format a value with 2 decimal places if it is numeric.
     """
     if isinstance(value, (int, float)):
+        if metric == "iou":
+            return f"{(value * 100):.1f}"
         return f"{value:.2f}"
     return value
 
@@ -112,7 +114,7 @@ def generate_comparison_tables(file_data):
                             else:
                                 # In case the subkey value is not a dict, use it directly.
                                 value = sub_dict[subkey]
-                    row.append(format_value(value))
+                    row.append(format_value(value, metric=metric))
                 table.append(row)
             output_lines.append(f"\nMetric: {metric}")
             output_lines.append(tabulate(table, headers=header, tablefmt="grid"))
@@ -121,23 +123,125 @@ def generate_comparison_tables(file_data):
     return "\n".join(output_lines)
 
 
+# def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"):
+#     """
+#     For each main key, this function creates a bar chart for the 'number_of_samples' metric
+#     and compiles all charts into a single PDF file using PdfPages.
+#     Each chart is saved with high quality (dpi=300).
+
+#     Colors:
+#       - First four figures use: '#D5E8D4', '#DAE8FC', '#000000', '#FFE6CC'
+#       - Any further figures use 'skyblue'
+#     """
+#     from matplotlib.backends.backend_pdf import PdfPages
+#     import matplotlib.pyplot as plt
+#     from matplotlib import ticker
+
+#     pdf = PdfPages(output_pdf)
+
+#     # Determine union of main keys across all files.
+#     main_keys = set()
+#     for cat_results in file_data.values():
+#         main_keys.update(cat_results.keys())
+#     main_keys = sorted(main_keys)
+
+#     sorted_files = sorted(file_data.keys())
+
+#     # Define custom colors for the first four figures.
+#     custom_colors = ["#D5E8D4", "#DAE8FC", "#000000", "#FFE6CC"]
+
+#     # Use an index to assign colors per figure.
+#     for idx, main_key in enumerate(main_keys):
+#         # Find a file that has this main key.
+#         sample_data = None
+#         for fname in sorted_files:
+#             cat_results = file_data[fname]
+#             if main_key in cat_results and isinstance(cat_results[main_key], dict):
+#                 sample_data = cat_results[main_key]
+#                 break
+#         if sample_data is None:
+#             continue  # no data for main key
+
+#         labels = []
+#         values = []
+#         for subkey, subval in sample_data.items():
+#             if isinstance(subval, dict):
+#                 num = subval.get("number_of_samples", None)
+#                 if num is not None:
+#                     labels.append(subkey)
+#                     values.append(num)
+
+#         if labels and values:
+#             # Sort the data in descending order based on values
+#             sorted_data = sorted(zip(labels, values), key=lambda x: x[1], reverse=True)
+#             labels, values = zip(*sorted_data)
+
+#             fig, ax = plt.subplots(figsize=(8, 6))
+
+#             # Determine the color for this figure.
+#             if idx < len(custom_colors):
+#                 color = custom_colors[idx]
+#             else:
+#                 color = "skyblue"
+
+#             # Bar Chart with sorted x-axis, using the assigned color for all bars.
+#             ax.bar(labels, values, color=color)
+#             ax.set_ylabel("Number of Samples")
+#             ax.tick_params(axis="x", rotation=45)
+
+#             # Annotate bars with their value.
+#             for i, v in enumerate(values):
+#                 ax.text(i, v + max(values) * 0.01, str(v), ha="center", va="bottom")
+
+#             # Remove all spines (borders).
+#             for spine in ax.spines.values():
+#                 spine.set_visible(False)
+
+#             # Place grid behind the plot elements.
+#             ax.set_axisbelow(True)
+
+#             # Set sparse y-axis ticks (adjust nbins as needed).
+#             ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=5))
+
+#             # Add horizontal grid lines only on the y-axis.
+#             ax.grid(which="major", axis="y", linestyle="--", linewidth=0.5)
+
+#             fig.tight_layout()
+#             pdf.savefig(fig, dpi=300)  # Save with high quality.
+#             plt.close(fig)
+
+#     pdf.close()
+#     print(f"Saved bar charts PDF to {output_pdf}")
+
+
 def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"):
     """
-    For each main key, this function creates a bar chart for the 'number_of_samples' metric
-    and compiles all charts into a single PDF file using PdfPages.
-    Each chart is saved with high quality (dpi=300).
+    For three selected main keys (original indices 0, 1, and 3, plotted in order: 1, 0, 3),
+    this function creates subplots for the 'number_of_samples' metric arranged in a 2x2 grid.
 
-    Colors:
-      - First four figures use: '#D5E8D4', '#DAE8FC', '#000000', '#FFE6CC'
-      - Any further figures use 'skyblue'
+    Layout:
+      - First row: The leftmost figure (from the selected order) spans the entire row.
+      - Second row: The remaining two figures are placed side by side, with widths proportional
+        to the number of bars in each subplot.
+
+    Custom Colors:
+      - Original index 0: '#D5E8D4'
+      - Original index 1: '#DAE8FC'
+      - Original index 3: '#FFE6CC'
+      - (Any missing or further indices default to 'skyblue')
+
+    Changes:
+      - All subplots have the ylabel "Number of Samples".
+      - All text elements (labels, ticks, annotations) use larger fonts.
+      - Uses constrained_layout for automatic spacing.
     """
     from matplotlib.backends.backend_pdf import PdfPages
     import matplotlib.pyplot as plt
     from matplotlib import ticker
+    import numpy as np
+    from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 
-    pdf = PdfPages(output_pdf)
-
-    # Determine union of main keys across all files.
+    # Get the union of main keys from all files.
     main_keys = set()
     for cat_results in file_data.values():
         main_keys.update(cat_results.keys())
@@ -145,12 +249,21 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
 
     sorted_files = sorted(file_data.keys())
 
-    # Define custom colors for the first four figures.
+    # Define custom colors.
     custom_colors = ["#D5E8D4", "#DAE8FC", "#000000", "#FFE6CC"]
 
-    # Use an index to assign colors per figure.
-    for idx, main_key in enumerate(main_keys):
-        # Find a file that has this main key.
+    # Select only three indices: originally 0, 1, and 3.
+    # But we want to plot them in the order: main_keys[1], main_keys[0], main_keys[3]
+    selected_order = [1, 0, 3]
+    selected = []
+    for i in selected_order:
+        if i < len(main_keys):
+            selected.append((main_keys[i], i))
+
+    # Gather data for each selected main key.
+    subplot_data = []
+    for main_key, orig_idx in selected:
+        # Find a file that contains this main key.
         sample_data = None
         for fname in sorted_files:
             cat_results = file_data[fname]
@@ -158,7 +271,7 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
                 sample_data = cat_results[main_key]
                 break
         if sample_data is None:
-            continue  # no data for main key
+            continue
 
         labels = []
         values = []
@@ -170,46 +283,150 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
                     values.append(num)
 
         if labels and values:
-            # Sort the data in descending order based on values
+            # Sort in descending order by value.
             sorted_data = sorted(zip(labels, values), key=lambda x: x[1], reverse=True)
             labels, values = zip(*sorted_data)
+            subplot_data.append(
+                {
+                    "main_key": main_key,
+                    "labels": labels,
+                    "values": values,
+                    "orig_idx": orig_idx,
+                    "n_bars": len(labels),
+                }
+            )
 
-            fig, ax = plt.subplots(figsize=(8, 6))
+    if len(subplot_data) < 3:
+        print("Not enough valid data found for the selected keys.")
+        return
 
-            # Determine the color for this figure.
-            if idx < len(custom_colors):
-                color = custom_colors[idx]
-            else:
-                color = "skyblue"
+    # Fixed bar width (in data coordinate units)
+    fixed_bar_width = 0.8
 
-            # Bar Chart with sorted x-axis, using the assigned color for all bars.
-            ax.bar(labels, values, color=color)
-            ax.set_ylabel("Number of Samples")
-            ax.tick_params(axis="x", rotation=45)
+    # Define font sizes (increased sizes).
+    label_fontsize = 22
+    tick_fontsize = 20
+    annotation_fontsize = 20
 
-            # Annotate bars with their value.
-            for i, v in enumerate(values):
-                ax.text(i, v + max(values) * 0.01, str(v), ha="center", va="bottom")
+    # Determine width ratios for the subplots in the second row (based on the number of bars)
+    second_row_ratios = [d["n_bars"] for d in subplot_data[1:]]
 
-            # Remove all spines (borders).
-            for spine in ax.spines.values():
-                spine.set_visible(False)
+    # Define figure size.
+    # Width is based on the maximum of the top subplot or the combined bottom subplots.
+    top_width = subplot_data[0]["n_bars"]
+    bottom_width = sum(second_row_ratios)
+    fig_width = max(top_width, bottom_width) + 2  # extra inches for margins
 
-            # Place grid behind the plot elements.
-            ax.set_axisbelow(True)
+    # Increase overall figure height for better bottom subplot visibility.
+    fig_height = 12  # previously 8 inches; now increased
+    fig = plt.figure(figsize=(fig_width, fig_height), constrained_layout=True)
 
-            # Set sparse y-axis ticks (adjust nbins as needed).
-            ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=5))
+    # Adjust outer GridSpec height ratios to allocate more space for the bottom row.
+    outer_gs = GridSpec(2, 1, figure=fig, height_ratios=[1, 1.5])
 
-            # Add horizontal grid lines only on the y-axis.
-            ax.grid(which="major", axis="y", linestyle="--", linewidth=0.5)
+    # --- First row: Top subplot spanning full width ---
+    ax0 = fig.add_subplot(outer_gs[0])
+    d = subplot_data[0]
+    labels = d["labels"]
+    values = d["values"]
+    n = len(labels)
+    x = np.arange(n)
+    orig_idx = d["orig_idx"]
+    color = custom_colors[orig_idx] if orig_idx < len(custom_colors) else "skyblue"
+    ax0.bar(x, values, color=color, width=fixed_bar_width)
+    ax0.set_xticks(x)
+    ax0.set_xticklabels(labels, rotation=45, ha="right", fontsize=tick_fontsize)
+    ax0.tick_params(axis="y", labelsize=tick_fontsize)
+    ax0.set_ylabel("Number of Samples", fontsize=label_fontsize)
+    max_val = max(values)
+    for j, v in enumerate(values):
+        ax0.text(
+            j,
+            v + max_val * 0.01,
+            str(v),
+            ha="center",
+            va="bottom",
+            fontsize=annotation_fontsize,
+        )
+    for spine in ax0.spines.values():
+        spine.set_visible(False)
+    ax0.set_axisbelow(True)
+    ax0.yaxis.set_major_locator(ticker.MaxNLocator(nbins=5))
+    ax0.grid(which="major", axis="y", linestyle="--", linewidth=0.5)
+    ax0.set_xlim(-0.5, n - 0.5)
 
-            fig.tight_layout()
-            pdf.savefig(fig, dpi=300)  # Save with high quality.
-            plt.close(fig)
+    # --- Second row: Create an inner GridSpec for the two subplots ---
+    inner_gs = GridSpecFromSubplotSpec(
+        1, 2, subplot_spec=outer_gs[1], width_ratios=second_row_ratios, wspace=0.1
+    )
 
+    # Left subplot in the second row.
+    ax1 = fig.add_subplot(inner_gs[0])
+    d = subplot_data[1]
+    labels = d["labels"]
+    values = d["values"]
+    n = len(labels)
+    x = np.arange(n)
+    orig_idx = d["orig_idx"]
+    color = custom_colors[orig_idx] if orig_idx < len(custom_colors) else "skyblue"
+    ax1.bar(x, values, color=color, width=fixed_bar_width)
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(labels, rotation=45, ha="right", fontsize=tick_fontsize)
+    ax1.tick_params(axis="y", labelsize=tick_fontsize)
+    ax1.set_ylabel("Number of Samples", fontsize=label_fontsize)
+    max_val = max(values)
+    for j, v in enumerate(values):
+        ax1.text(
+            j,
+            v + max_val * 0.01,
+            str(v),
+            ha="center",
+            va="bottom",
+            fontsize=annotation_fontsize,
+        )
+    for spine in ax1.spines.values():
+        spine.set_visible(False)
+    ax1.set_axisbelow(True)
+    ax1.yaxis.set_major_locator(ticker.MaxNLocator(nbins=5))
+    ax1.grid(which="major", axis="y", linestyle="--", linewidth=0.5)
+    ax1.set_xlim(-0.5, n - 0.5)
+
+    # Right subplot in the second row.
+    ax2 = fig.add_subplot(inner_gs[1])
+    d = subplot_data[2]
+    labels = d["labels"]
+    values = d["values"]
+    n = len(labels)
+    x = np.arange(n)
+    orig_idx = d["orig_idx"]
+    color = custom_colors[orig_idx] if orig_idx < len(custom_colors) else "skyblue"
+    ax2.bar(x, values, color=color, width=fixed_bar_width)
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(labels, rotation=45, ha="right", fontsize=tick_fontsize)
+    ax2.tick_params(axis="y", labelsize=tick_fontsize)
+    ax2.set_ylabel("Number of Samples", fontsize=label_fontsize)
+    max_val = max(values)
+    for j, v in enumerate(values):
+        ax2.text(
+            j,
+            v + max_val * 0.01,
+            str(v),
+            ha="center",
+            va="bottom",
+            fontsize=annotation_fontsize,
+        )
+    for spine in ax2.spines.values():
+        spine.set_visible(False)
+    ax2.set_axisbelow(True)
+    ax2.yaxis.set_major_locator(ticker.MaxNLocator(nbins=5))
+    ax2.grid(which="major", axis="y", linestyle="--", linewidth=0.5)
+    ax2.set_xlim(-0.5, n - 0.5)
+
+    pdf = PdfPages(output_pdf)
+    pdf.savefig(fig, dpi=300)
     pdf.close()
-    print(f"Saved bar charts PDF to {output_pdf}")
+    plt.close(fig)
+    print(f"Saved combined bar charts PDF to {output_pdf}")
 
 
 def main():
