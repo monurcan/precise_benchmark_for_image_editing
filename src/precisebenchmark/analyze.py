@@ -123,95 +123,97 @@ def generate_comparison_tables(file_data):
     return "\n".join(output_lines)
 
 
-# def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"):
-#     """
-#     For each main key, this function creates a bar chart for the 'number_of_samples' metric
-#     and compiles all charts into a single PDF file using PdfPages.
-#     Each chart is saved with high quality (dpi=300).
+def generate_number_of_samples_pdf_separately(
+    file_data, output_pdf="number_of_samples.pdf"
+):
+    """
+    For each main key, this function creates a bar chart for the 'number_of_samples' metric
+    and compiles all charts into a single PDF file using PdfPages.
+    Each chart is saved with high quality (dpi=300).
 
-#     Colors:
-#       - First four figures use: '#D5E8D4', '#DAE8FC', '#000000', '#FFE6CC'
-#       - Any further figures use 'skyblue'
-#     """
-#     from matplotlib.backends.backend_pdf import PdfPages
-#     import matplotlib.pyplot as plt
-#     from matplotlib import ticker
+    Colors:
+      - First four figures use: '#D5E8D4', '#DAE8FC', '#000000', '#FFE6CC'
+      - Any further figures use 'skyblue'
+    """
+    from matplotlib.backends.backend_pdf import PdfPages
+    import matplotlib.pyplot as plt
+    from matplotlib import ticker
 
-#     pdf = PdfPages(output_pdf)
+    pdf = PdfPages(output_pdf)
 
-#     # Determine union of main keys across all files.
-#     main_keys = set()
-#     for cat_results in file_data.values():
-#         main_keys.update(cat_results.keys())
-#     main_keys = sorted(main_keys)
+    # Determine union of main keys across all files.
+    main_keys = set()
+    for cat_results in file_data.values():
+        main_keys.update(cat_results.keys())
+    main_keys = sorted(main_keys)
 
-#     sorted_files = sorted(file_data.keys())
+    sorted_files = sorted(file_data.keys())
 
-#     # Define custom colors for the first four figures.
-#     custom_colors = ["#D5E8D4", "#DAE8FC", "#000000", "#FFE6CC"]
+    # Define custom colors for the first four figures.
+    custom_colors = ["#D5E8D4", "#DAE8FC", "#000000", "#FFE6CC"]
 
-#     # Use an index to assign colors per figure.
-#     for idx, main_key in enumerate(main_keys):
-#         # Find a file that has this main key.
-#         sample_data = None
-#         for fname in sorted_files:
-#             cat_results = file_data[fname]
-#             if main_key in cat_results and isinstance(cat_results[main_key], dict):
-#                 sample_data = cat_results[main_key]
-#                 break
-#         if sample_data is None:
-#             continue  # no data for main key
+    # Use an index to assign colors per figure.
+    for idx, main_key in enumerate(main_keys):
+        # Find a file that has this main key.
+        sample_data = None
+        for fname in sorted_files:
+            cat_results = file_data[fname]
+            if main_key in cat_results and isinstance(cat_results[main_key], dict):
+                sample_data = cat_results[main_key]
+                break
+        if sample_data is None:
+            continue  # no data for main key
 
-#         labels = []
-#         values = []
-#         for subkey, subval in sample_data.items():
-#             if isinstance(subval, dict):
-#                 num = subval.get("number_of_samples", None)
-#                 if num is not None:
-#                     labels.append(subkey)
-#                     values.append(num)
+        labels = []
+        values = []
+        for subkey, subval in sample_data.items():
+            if isinstance(subval, dict):
+                num = subval.get("number_of_samples", None)
+                if num is not None:
+                    labels.append(subkey)
+                    values.append(num)
 
-#         if labels and values:
-#             # Sort the data in descending order based on values
-#             sorted_data = sorted(zip(labels, values), key=lambda x: x[1], reverse=True)
-#             labels, values = zip(*sorted_data)
+        if labels and values:
+            # Sort the data in descending order based on values
+            sorted_data = sorted(zip(labels, values), key=lambda x: x[1], reverse=True)
+            labels, values = zip(*sorted_data)
 
-#             fig, ax = plt.subplots(figsize=(8, 6))
+            fig, ax = plt.subplots(figsize=(8, 6))
 
-#             # Determine the color for this figure.
-#             if idx < len(custom_colors):
-#                 color = custom_colors[idx]
-#             else:
-#                 color = "skyblue"
+            # Determine the color for this figure.
+            if idx < len(custom_colors):
+                color = custom_colors[idx]
+            else:
+                color = "skyblue"
 
-#             # Bar Chart with sorted x-axis, using the assigned color for all bars.
-#             ax.bar(labels, values, color=color)
-#             ax.set_ylabel("Number of Samples")
-#             ax.tick_params(axis="x", rotation=45)
+            # Bar Chart with sorted x-axis, using the assigned color for all bars.
+            ax.bar(labels, values, color=color)
+            ax.set_ylabel("Number of Samples")
+            ax.tick_params(axis="x", rotation=45)
 
-#             # Annotate bars with their value.
-#             for i, v in enumerate(values):
-#                 ax.text(i, v + max(values) * 0.01, str(v), ha="center", va="bottom")
+            # Annotate bars with their value.
+            for i, v in enumerate(values):
+                ax.text(i, v + max(values) * 0.01, str(v), ha="center", va="bottom")
 
-#             # Remove all spines (borders).
-#             for spine in ax.spines.values():
-#                 spine.set_visible(False)
+            # Remove all spines (borders).
+            for spine in ax.spines.values():
+                spine.set_visible(False)
 
-#             # Place grid behind the plot elements.
-#             ax.set_axisbelow(True)
+            # Place grid behind the plot elements.
+            ax.set_axisbelow(True)
 
-#             # Set sparse y-axis ticks (adjust nbins as needed).
-#             ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=5))
+            # Set sparse y-axis ticks (adjust nbins as needed).
+            ax.yaxis.set_major_locator(ticker.MaxNLocator(nbins=5))
 
-#             # Add horizontal grid lines only on the y-axis.
-#             ax.grid(which="major", axis="y", linestyle="--", linewidth=0.5)
+            # Add horizontal grid lines only on the y-axis.
+            ax.grid(which="major", axis="y", linestyle="--", linewidth=0.5)
 
-#             fig.tight_layout()
-#             pdf.savefig(fig, dpi=300)  # Save with high quality.
-#             plt.close(fig)
+            fig.tight_layout()
+            pdf.savefig(fig, dpi=300)  # Save with high quality.
+            plt.close(fig)
 
-#     pdf.close()
-#     print(f"Saved bar charts PDF to {output_pdf}")
+    pdf.close()
+    print(f"Saved bar charts PDF to {output_pdf}")
 
 
 def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"):
