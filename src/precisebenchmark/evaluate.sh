@@ -77,8 +77,8 @@
 
 
 ##################### SUNDAY LAST EVALUATION #################
-analysisfolder="/dtu/blackhole/00/215456/marcoshare/FINAL_FINAL_LAST_RESULTS_SUNDAY_handleunsuccessful/"
-save_path="/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/evaluation_results/last_results/"
+# analysisfolder="/dtu/blackhole/00/215456/marcoshare/FINAL_FINAL_LAST_RESULTS_SUNDAY_handleunsuccessful/"
+# save_path="/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/evaluation_results/last_results/"
 
 ## Handle unsuccessful attempts
 # python3 handle_unsuccessful_tries.py --target_folder "$analysisfolder/11_qwen_MLLM_qwen_LLM_SLD_refine/" --input_folder "$analysisfolder/1_internMLLM/" --operation_type "delete"
@@ -128,7 +128,33 @@ save_path="/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/evaluati
 # python3 evaluate.py --input_folder "$analysisfolder/9_qwen_MLLM_grounded_SAM_qwen_LLM/" --evaluation_mode "gt_edited_masks_vs_my_edited_masks" --save_path "$save_path/9_qwen_MLLM_grounded_SAM_qwen_LLM.json"
 
 # python3 evaluate.py --input_folder "$analysisfolder/10_qwen_MLLM_qwen_LLM_SLD/" --evaluation_mode "gt_edited_masks_vs_my_edited_images" --save_path "$save_path/10_qwen_MLLM_qwen_LLM_SLD.json"
-# python3 evaluate.py --input_folder "$analysisfolder/11_qwen_MLLM_qwen_LLM_SLD_refine/" --evaluation_mode "gt_edited_masks_vs_my_edited_images" --save_path "$save_path/11_qwen_MLLM_qwen_LLM_SLD_refine.json" # I runned this from the terminal by copy and paste
+# python3 evaluate.py --input_folder "$analysisfolder/11_qwen_MLLM_qwen_LLM_SLD_refine/" --evaluation_mode "gt_edited_masks_vs_my_edited_images" --save_path "$save_path/11_qwen_MLLM_qwen_LLM_SLD_refine.json" 
 
 ## Analyze results
+# python3 analyze.py "$save_path" --output "$save_path/"
+
+
+
+
+
+
+
+
+##################### COMPARE LAST EVALUATION #################
+analysisfolder="/dtu/blackhole/00/215456/marcoshare/pose_supplementary_eval_handleunsuccesful/"
+referencefolder="/dtu/blackhole/00/215456/marcoshare/FINAL_FINAL_LAST_RESULTS_SUNDAY_handleunsuccessful/11_qwen_MLLM_qwen_LLM_SLD_refine/"
+save_path="/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/evaluation_results/last_results_compare/"
+
+# python3 handle_unsuccessful_tries.py --target_folder $referencefolder --input_folder "$analysisfolder/onur_benchmark_ip2p/" --operation_type "delete"
+# python3 handle_unsuccessful_tries.py --target_folder $referencefolder --input_folder "$analysisfolder/onur_benchmark_ip2p/" --operation_type "white"
+# python3 handle_unsuccessful_tries.py --target_folder $referencefolder --input_folder "$analysisfolder/onur_benchmark_leditspp/" --operation_type "delete"
+# python3 handle_unsuccessful_tries.py --target_folder $referencefolder --input_folder "$analysisfolder/onur_benchmark_leditspp/" --operation_type "white"
+# python3 handle_unsuccessful_tries.py --target_folder $referencefolder --input_folder "$analysisfolder/onur_benchmark_turboedit/" --operation_type "delete"
+# python3 handle_unsuccessful_tries.py --target_folder $referencefolder --input_folder "$analysisfolder/onur_benchmark_turboedit/" --operation_type "white"
+
+
+python3 evaluate.py --input_folder "$analysisfolder/onur_benchmark_ip2p/" --evaluation_mode "gt_edited_masks_vs_my_edited_images" --save_path "$save_path/onur_benchmark_ip2p.json"
+python3 evaluate.py --input_folder "$analysisfolder/onur_benchmark_leditspp/" --evaluation_mode "gt_edited_masks_vs_my_edited_images" --save_path "$save_path/onur_benchmark_leditspp.json"
+python3 evaluate.py --input_folder "$analysisfolder/onur_benchmark_turboedit/" --evaluation_mode "gt_edited_masks_vs_my_edited_images" --save_path "$save_path/onur_benchmark_turboedit.json"
+
 python3 analyze.py "$save_path" --output "$save_path/"
