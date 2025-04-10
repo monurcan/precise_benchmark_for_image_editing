@@ -4,7 +4,7 @@ Sample format: (input image, edit prompt, input mask, ground-truth output mask, 
 
 The benchmark is available at: https://huggingface.co/datasets/monurcan/precise_benchmark_for_object_level_image_editing
 
-Please refer to our paper for more details: "[📜 POEM: Precise Object-level Editing via MLLM control](https://poem.compute.dtu.dk/)", SCIA 2025.
+Please refer to our paper for details: "[📜 POEM: Precise Object-level Editing via MLLM control](https://poem.compute.dtu.dk/)", SCIA 2025.
 
 
 # Warning
