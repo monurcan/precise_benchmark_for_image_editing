@@ -6,8 +6,10 @@ The benchmark is available at: https://huggingface.co/datasets/monurcan/precise_
 
 Please refer to our paper for more details: "[📜 POEM: Precise Object-level Editing via MLLM control](https://poem.compute.dtu.dk/)", SCIA 2025.
 
+
+# Warning
 This GitHub repo contains codes for evaluation and dataset generation. **But, you do not have to download this repo directly. You can use it as a pip package.**
-Refer to the HuggingFace link for more information about the evaluation pipeline.
+Refer to the [HuggingFace link](https://huggingface.co/datasets/monurcan/precise_benchmark_for_object_level_image_editing) for more information about the evaluation pipeline.
 
 
 You should not read this README file for evaluation. This is just dataset creation details.
