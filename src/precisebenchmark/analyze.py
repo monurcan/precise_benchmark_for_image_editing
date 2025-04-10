@@ -288,13 +288,13 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
     top_width = subplot_data[0]["n_bars"]
     bottom_width = sum(second_row_ratios)
     fig_width = max(top_width, bottom_width) + 2
-    fig_height = 12
+    fig_height = 8
     # Create the figure with constrained layout.
     fig = plt.figure(figsize=(fig_width, fig_height), constrained_layout=True)
     # Set a slightly larger vertical margin between rows.
     fig.set_constrained_layout_pads(hspace=0.15)
 
-    outer_gs = GridSpec(2, 1, figure=fig, height_ratios=[1, 1.5])
+    outer_gs = GridSpec(2, 1, figure=fig, height_ratios=[1, 1.3])
 
     # Top subplot
     ax0 = fig.add_subplot(outer_gs[0])
@@ -306,7 +306,7 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
     ax0.bar(x, values, color=color, width=fixed_bar_width)
     ax0.set_xticks(x)
     ax0.set_xticklabels(mapped_labels, ha="center", fontsize=tick_fontsize)
-    ax0.set_title("(a) Object classes", fontsize=label_fontsize, pad=20)
+    ax0.set_title("(a) Object class", fontsize=label_fontsize, pad=30)
     ax0.set_yticks([])
     ax0.tick_params(axis="x", which="both", length=0)
     for spine in ax0.spines.values():
@@ -339,9 +339,9 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
     ax1.set_xticks(x)
     ax1.set_xticklabels(mapped_labels, ha="center", fontsize=tick_fontsize)
     ax1.set_title(
-        "(b) Different transformation types",
+        "(b) Transformation type",
         fontsize=label_fontsize,
-        pad=20,
+        pad=30,
     )
     ax1.set_yticks([])
     ax1.tick_params(axis="x", which="both", length=0)
@@ -372,7 +372,7 @@ def generate_number_of_samples_pdf(file_data, output_pdf="number_of_samples.pdf"
     ax2.set_title(
         "(c) Transformation difficulty",
         fontsize=label_fontsize,
-        pad=20,
+        pad=30,
     )
     ax2.set_yticks([])
     ax2.tick_params(axis="x", which="both", length=0)
