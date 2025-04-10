@@ -1,3 +1,6 @@
+# This script is to show how to run the evaluation script
+# It is not meant to be run directly, but to be used as a reference for the user
+
 # if [ -z "$1" ] || [ -z "$2" ]; then
 #     echo "Usage: $0 <input_folder_base> <output_folder>"
 #     exit 1
@@ -11,7 +14,7 @@
 # python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/" --input_folder "$1/evaluation_4_after_sld/" --operation_type "inputimage" --input_images_folder "/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/generated_datasets/version8"
 # python3 handle_unsuccessful_tries.py --target_folder "$1/evaluation_1_after_vlm/" --input_folder "$1/evaluation_5_after_sld_refine/" --operation_type "inputimage" --input_images_folder "/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/generated_datasets/version8"
 
-##################### SATURDAY OLD EVALUATION #################
+##################### OLD EVALUATION #################
 # First create an unbiased subset
 # python3 handle_unsuccessful_tries.py --target_folder "/dtu/blackhole/00/215456/marcoshare/qwen_deepseek_drawer_handleunsuccessful/evaluation_1_after_vlm/" --input_folder "/dtu/blackhole/00/215456/marcoshare/qwen_qwen_nodrawer_handleunsuccessful/evaluation_1_after_vlm/" --operation_type "delete"
 # python3 handle_unsuccessful_tries.py --input_folder "/dtu/blackhole/00/215456/marcoshare/qwen_deepseek_drawer_handleunsuccessful/evaluation_1_after_vlm/" --target_folder "/dtu/blackhole/00/215456/marcoshare/qwen_qwen_nodrawer_handleunsuccessful/evaluation_1_after_vlm/" --operation_type "delete"
@@ -75,7 +78,7 @@
 # echo "============================="
 # python3 analyze.py "$2" --output "$2/"
 
-##################### SUNDAY LAST EVALUATION #################
+##################### LAST EVALUATION #################
 # analysisfolder="/dtu/blackhole/00/215456/marcoshare/FINAL_FINAL_LAST_RESULTS_SUNDAY_handleunsuccessful/"
 # save_path="/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/evaluation_results/last_results/"
 
@@ -132,7 +135,7 @@
 ## Analyze results
 # python3 analyze.py "$save_path" --output "$save_path/"
 
-# ##################### COMPARE LAST EVALUATION #################
+# ##################### LAST EVALUATION - COMPARE #################
 # analysisfolder="/dtu/blackhole/00/215456/marcoshare/pose_supplementary_eval_handleunsuccesful/"
 # referencefolder="/dtu/blackhole/00/215456/marcoshare/FINAL_FINAL_LAST_RESULTS_SUNDAY_handleunsuccessful/11_qwen_MLLM_qwen_LLM_SLD_refine/"
 # save_path="/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/evaluation_results/last_results_compare/"
@@ -150,17 +153,17 @@
 
 # python3 analyze.py "$save_path" --output "$save_path/"
 
-##################### COMPARE LAST EVALUATION - 72B MODELS #################
-analysisfolder="/dtu/blackhole/00/215456/marcoshare/pose_camera_ready_handleunsuccessful/"
-referencefolder="/dtu/blackhole/00/215456/marcoshare/FINAL_FINAL_LAST_RESULTS_SUNDAY_handleunsuccessful/11_qwen_MLLM_qwen_LLM_SLD_refine/"
-save_path="/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/evaluation_results/last_results_bigger_72B/"
+##################### LAST EVALUATION - 72B MODELS #################
+# analysisfolder="/dtu/blackhole/00/215456/marcoshare/pose_camera_ready_handleunsuccessful/"
+# referencefolder="/dtu/blackhole/00/215456/marcoshare/FINAL_FINAL_LAST_RESULTS_SUNDAY_handleunsuccessful/11_qwen_MLLM_qwen_LLM_SLD_refine/"
+# save_path="/dtu/blackhole/00/215456/precise_benchmark_for_image_editing/evaluation_results/last_results_bigger_72B/"
 
 # python3 handle_unsuccessful_tries.py --target_folder $referencefolder --input_folder "$analysisfolder/intern_72/evaluation_1_after_vlm/" --operation_type "delete"
 # python3 handle_unsuccessful_tries.py --target_folder $referencefolder --input_folder "$analysisfolder/intern_72/evaluation_1_after_vlm/" --operation_type "white"
 # python3 handle_unsuccessful_tries.py --target_folder $referencefolder --input_folder "$analysisfolder/qwen_72/evaluation_1_after_vlm/" --operation_type "delete"
 # python3 handle_unsuccessful_tries.py --target_folder $referencefolder --input_folder "$analysisfolder/qwen_72/evaluation_1_after_vlm/" --operation_type "white"
 
-python3 evaluate.py --input_folder "$analysisfolder/intern_72/evaluation_1_after_vlm/" --evaluation_mode "gt_input_masks_vs_my_bounding_boxes" --save_path "$save_path/onur_benchmark_intern_72.json"
-python3 evaluate.py --input_folder "$analysisfolder/qwen_72/evaluation_1_after_vlm/" --evaluation_mode "gt_input_masks_vs_my_bounding_boxes" --save_path "$save_path/onur_benchmark_qwen_72.json"
+# python3 evaluate.py --input_folder "$analysisfolder/intern_72/evaluation_1_after_vlm/" --evaluation_mode "gt_input_masks_vs_my_bounding_boxes" --save_path "$save_path/onur_benchmark_intern_72.json"
+# python3 evaluate.py --input_folder "$analysisfolder/qwen_72/evaluation_1_after_vlm/" --evaluation_mode "gt_input_masks_vs_my_bounding_boxes" --save_path "$save_path/onur_benchmark_qwen_72.json"
 
-python3 analyze.py "$save_path" --output "$save_path/"
+# python3 analyze.py "$save_path" --output "$save_path/"

@@ -1,10 +1,10 @@
-# precise_benchmark_for_image_editing
-
-A benchmark for precise geometric object-level editing.
+# VOCEdits: A benchmark for precise geometric object-level editing
 
 Sample format: (input image, edit prompt, input mask, ground-truth output mask, ...)
 
 The benchmark is available at: https://huggingface.co/datasets/monurcan/precise_benchmark_for_object_level_image_editing
+
+Please refer to our project page for more details: "[📜 POEM: Precise Object-level Editing via MLLM control](https://poem.compute.dtu.dk/)", SCIA 2025.
 
 This GitHub repo contains codes for evaluation and dataset generation. **But, you do not have to download this repo directly. You can use it as a pip package.**
 Refer to the HuggingFace link for more information about the evaluation pipeline.
@@ -12,6 +12,21 @@ Refer to the HuggingFace link for more information about the evaluation pipeline
 
 You should not read this README file for evaluation. This is just dataset creation details.
 
+
+
+# Citation
+Please cite the following paper when using the code or data:
+```
+@inproceedings{schouten2025poem,
+    title={POEM: Precise Object-level Editing via MLLM control},
+    author={Schouten, Marco and Kaya, Mehmet Onurcan and Belongie, Serge and Papadopoulos, Dim P.},
+    booktitle={Scandinavian Conference on Image Analysis},
+    year={2025},
+}
+```
+
+# Contact
+If you have any questions or need help, please feel free to contact me via monka@dtu.dk.
 
 <details>
 <summary><h1>Dataset Generation</h1></summary>
